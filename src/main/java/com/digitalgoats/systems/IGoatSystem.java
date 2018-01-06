@@ -9,9 +9,14 @@ import com.digitalgoats.util.LogitechF310;
 public interface IGoatSystem {
 
   /**
-   * System update periodically called while robot is disabled
+   * System update method called periodically while robot is disabled
    */
-  public void disabledUpdate();
+  public void disabledUpdateSystem();
+
+  /**
+   * System update method called periodically while robot is in autonomous period
+   */
+  public void autonomousUpdateSystem();
 
   /**
    * System update method called periodically while robot is in teleoperated period
@@ -20,7 +25,7 @@ public interface IGoatSystem {
    * @param operator
    *  The controller used by the systems operator
    */
-  public void updateSystem(LogitechF310 driver, LogitechF310 operator);
+  public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator);
 
   /**
    * SmartDashboard update method called periodically while robot is in teleoperated period
