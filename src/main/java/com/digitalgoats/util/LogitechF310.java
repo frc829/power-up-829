@@ -55,10 +55,15 @@ public class LogitechF310 extends Joystick {
     JOY_LEFT_BUT(9),
     JOY_RIGHT_BUT(10);
 
+    /** Value for the designated field */
     private int value;
+
+    /** Create field with specified value */
     private LogitechButton(int value) {
       this.value = value;
     }
+
+    /** Get the field's value */
     public int getValue() {
       return this.value;
     }
@@ -77,10 +82,15 @@ public class LogitechF310 extends Joystick {
     RIGHT_X(4),
     RIGHT_Y(5);
 
+    /** Value for the designated field */
     private int value;
+
+    /** Create field with specified value */
     private LogitechAxis(int value) {
       this.value = value;
     }
+
+    /** Get the field's value */
     public int getValue() {
       return this.value;
     }
