@@ -50,7 +50,7 @@ public class LogitechF310 extends Joystick {
     BUT_Y(4),
     BUMPER_LEFT(5),
     BUMPER_RIGHT(6),
-    BUT_SELECT(7),
+    BUT_BACK(7),
     BUT_START(8),
     JOY_LEFT_BUT(9),
     JOY_RIGHT_BUT(10);
