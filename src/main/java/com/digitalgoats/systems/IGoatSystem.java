@@ -1,6 +1,6 @@
 package com.digitalgoats.systems;
 
-import edu.wpi.first.wpilibj.Joystick;
+import com.digitalgoats.util.LogitechF310;
 
 /**
  * The interface that represents a particular system for the robot
@@ -20,7 +20,7 @@ public interface IGoatSystem {
    * @param operator
    *  The controller used by the systems operator
    */
-  public void updateSystem(Joystick driver, Joystick operator);
+  public void updateSystem(LogitechF310 driver, LogitechF310 operator);
 
   /**
    * SmartDashboard update method called periodically while robot is in teleoperated period
