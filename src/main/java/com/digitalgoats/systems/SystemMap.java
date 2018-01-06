@@ -5,7 +5,16 @@ package com.digitalgoats.systems;
  */
 public enum SystemMap {
 
-  EMPTY(0); // Placeholder
+  // Drive Talons
+  DRIVE_FRONTLEFT_TALON(10),
+  DRIVE_BACKLEFT_TALON(11),
+  DRIVE_FRONTRIGHT_TALON(12),
+  DRIVE_BACKRIGHT_TALON(13),
+
+  // Drive Pneumatics
+  DRIVE_PCM(14),
+  DRIVE_TRANS_FORWARD(0),
+  DRIVE_TRANS_BACKWARD(1);
 
   /** Value for the specified field */
   private int value;
