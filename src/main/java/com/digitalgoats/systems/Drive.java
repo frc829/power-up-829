@@ -29,7 +29,7 @@ public class Drive implements IGoatSystem {
   // Objects
   private AHRS navx;
   private DoubleSolenoid transmission;
-  private TalonSRX frontLeft, backLeft, frontRight, backRight;
+  private TalonSRX frontLeft, midLeft, backLeft, frontRight, midRight, backRight;
 
   /** Create instance of Drive System */
   public Drive(AHRS navx) {
@@ -49,8 +49,10 @@ public class Drive implements IGoatSystem {
         SystemMap.DRIVE_TRANS_BACKWARD.getValue()
     );
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
+    this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
     this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
+    this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
 
   }
