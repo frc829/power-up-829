@@ -1,6 +1,8 @@
 package com.digitalgoats.systems;
 
 import com.digitalgoats.util.LogitechF310;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SerialPort.Port;
 import java.util.ArrayList;
 
 /**
@@ -9,13 +11,18 @@ import java.util.ArrayList;
 public class Systems implements IGoatSystem {
 
   // Objects
-  public ArrayList<IGoatSystem> systems = new ArrayList<IGoatSystem>();
+  public AHRS navx;
+  public ArrayList<IGoatSystem> systems;
   public Drive drive;
 
   /**
    * Add all systems to
    */
   public Systems() {
+
+    systems = new ArrayList<IGoatSystem>();
+    navx = new AHRS(Port.kMXP);
+    drive = new Drive(navx);
 
     // Add Individual Systems
     systems.add(drive);
