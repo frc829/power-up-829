@@ -1,41 +1,76 @@
 package com.digitalgoats.auto;
 
-import com.digitalgoats.systems.Systems;
+import com.digitalgoats.systems.SystemsGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
+/**
+ * The general class for creating an Autonomous
+ * @author Blake
+ */
 public abstract class Auto {
 
+  // Fields
   public int step;
   public String name;
-  public Systems systems;
+  public SystemsGroup systemsGroup;
 
-  public Auto(String name, Systems systems) {
+  /**
+   * Create an auto
+   * @param name
+   *  The autonomous name
+   * @param systemsGroup
+   *  The group of systems to be used
+   */
+  public Auto(String name, SystemsGroup systemsGroup) {
     this.setName(name);
-    this.setSystems(systems);
+    this.setSystemsGroup(systemsGroup);
   }
 
+  /** Execute the selected auto */
   public abstract void execute();
 
-  public void addToDashboard(SendableChooser<Auto> chooser, boolean isDefault) {
+  /**
+   * Add Auto to SendableChooser
+   * @param chooser
+   *  The SendableChooser to be used
+   * @param isDefault
+   */
+  public void addToChooser(SendableChooser<String> chooser, boolean isDefault) {
     if (isDefault) {
-      chooser.addDefault(this.getName(), this);
+      chooser.addDefault(this.getName(), this.getName());
     } else {
-      chooser.addObject(this.getName(), this);
+      chooser.addObject(this.getName(), this.getName());
     }
   }
 
+  /** Get step */
+  public int getStep() {
+    return this.step;
+  }
+
+  /** Set step */
+  public void setStep(int step) {
+    this.step = step;
+  }
+
+  /** Get name */
   public String getName() {
     return this.name;
   }
+
+  /** Set name */
   public void setName(String name) {
     this.name = name;
   }
 
-  public Systems getSystems() {
-    return this.systems;
+  /** Get group of systems */
+  public SystemsGroup getSystemsGroup() {
+    return this.systemsGroup;
   }
-  public void setSystems(Systems systems) {
-    this.systems = systems;
+
+  /** Set group of systems */
+  public void setSystemsGroup(SystemsGroup systemsGroup) {
+    this.systemsGroup = systemsGroup;
   }
 
 }

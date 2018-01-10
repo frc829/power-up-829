@@ -8,31 +8,32 @@ import java.util.ArrayList;
 
 /**
  * This class combines all of the individual systems
+ * @author Blake
  */
-public class Systems implements IGoatSystem {
+public class SystemsGroup implements IGoatSystem {
 
   // Objects
   public AHRS navx;
   public Compressor compressor;
 
-  // Systems
+  // SystemsGroup
   public ArrayList<IGoatSystem> systems;
   public Drive drive;
 
   /**
-   * Add all systems to
+   * Add all systems to SystemsGroup
    */
-  public Systems() {
+  public SystemsGroup() {
 
     // Setup Objects
     navx = new AHRS(Port.kMXP);
     compressor = new Compressor(SystemMap.DRIVE_PCM.getValue());
 
-    // Setup Systems
+    // Setup SystemsGroup
     systems = new ArrayList<IGoatSystem>();
     drive = new Drive(navx);
 
-    // Add Individual Systems
+    // Add Individual SystemsGroup
     systems.add(drive);
 
     // Start Compressor

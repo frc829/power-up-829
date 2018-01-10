@@ -1,7 +1,7 @@
 package com.digitalgoats.systems;
 
 /**
- * Map of ports and CAN IDs for systems
+ * Map of ports and CAN IDs for systemsGroup
  */
 public enum SystemMap {
 
