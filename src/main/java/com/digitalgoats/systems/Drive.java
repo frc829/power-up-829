@@ -19,6 +19,7 @@ public class Drive implements IGoatSystem {
   // Constants
   private final double straightModifier = 1.20;
   private final double encoderThreshold = 40;
+  private final double turnThreshold = 8.29;
   private final long transmissionDelay = 500;
 
   // Fields
@@ -115,6 +116,42 @@ public class Drive implements IGoatSystem {
     double right = (deltaEncoder < -encoderThreshold) ? speed * straightModifier : speed;
     this.setDriveSpeed(left, right);
 
+  }
+
+  /**
+   * Check that robot is at specified angle
+   * @param angle
+   *  Desired robot angle
+   * @return
+   *  true if robot is at desired angle, otherwise false
+   */
+  public boolean atAngle(double angle) {
+    return Math.abs(this.navx.getAngle() - this.getStartAngle()) <= turnThreshold;
+  }
+
+  /**
+   * Turn toward specified angle
+   * @param angle
+   *  Angle to turn toward
+   * @param speed
+   *  The desired percent output speed
+   */
+  public void turnTowardAngle(double angle, double speed) {
+
+    double deltaAngle = this.navx.getAngle() - this.getStartAngle();
+    double left = (deltaAngle > turnThreshold) ? 0 : speed;
+    double right = (deltaAngle < -turnThreshold) ? speed : 0;
+    this.setDriveSpeed(left, right);
+
+  }
+
+  /**
+   * Turn toward specified angle
+   * @param angle
+   *  Angle to turn toward
+   */
+  public void turnTowardAngle(double angle) {
+    turnTowardAngle(angle, 1);
   }
 
   /** User toggle transmission status */
