@@ -3,7 +3,12 @@ package com.digitalgoats.auto;
 import com.digitalgoats.systems.SystemsGroup;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
+import openrio.powerup.MatchData.OwnedSide;
 
+/**
+ * Simple Do Nothing Auto
+ * @author Blake
+ */
 public class DoNothingAuto extends Auto {
 
   public DoNothingAuto(SystemsGroup systemsGroup) {
@@ -12,7 +17,10 @@ public class DoNothingAuto extends Auto {
 
   @Override
   public void execute() {
-    System.out.println(MatchData.getOwnedSide(GameFeature.SWITCH_NEAR).toString());
+
+    // Print the owned side for alliance's switch
+    System.out.println(MatchData.getOwnedSide(GameFeature.SWITCH_NEAR));
+
   }
 
 }
