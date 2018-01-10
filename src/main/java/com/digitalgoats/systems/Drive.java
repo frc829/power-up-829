@@ -18,6 +18,7 @@ public class Drive implements IGoatSystem {
 
   // Constants
   private final double straightModifier = 1.20;
+  private final double encoderThreshold = 40;
   private final long transmissionDelay = 500;
 
   // Fields
@@ -95,7 +96,23 @@ public class Drive implements IGoatSystem {
 
     double deltaAngle = this.navx.getAngle() - this.getStartAngle();
     double left = (deltaAngle > 0) ? speed : speed * straightModifier;
-    double right = (deltaAngle < 0) ? speed : speed * straightModifier;
+    double right = (deltaAngle < 0) ? speed * straightModifier : speed;
+    this.setDriveSpeed(left, right);
+
+  }
+
+  /**
+   * Drive straight using encoder control
+   * @param speed
+   *  The desired percent output speed
+   */
+  public void driveStraightEncoders(double speed) {
+
+    double leftEncoder = this.backLeft.getSelectedSensorPosition(0);
+    double rightEncoder = this.backRight.getSelectedSensorPosition(0);
+    double deltaEncoder = leftEncoder - rightEncoder;
+    double left = (deltaEncoder > encoderThreshold) ? speed : speed * straightModifier;
+    double right = (deltaEncoder < -encoderThreshold) ? speed * straightModifier : speed;
     this.setDriveSpeed(left, right);
 
   }
