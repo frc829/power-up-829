@@ -11,6 +11,7 @@ public abstract class Auto {
 
   // Fields
   public int step;
+  public long startTime;
   public String name;
   public SystemsGroup systemsGroup;
 
@@ -47,17 +48,33 @@ public abstract class Auto {
   public int getStep() {
     return this.step;
   }
-
   /** Set step */
   public void setStep(int step) {
     this.step = step;
+  }
+  /** Next step */
+  public void nextStep() {
+    this.setStep(this.getStep() + 1);
+  }
+
+  /** Get start time */
+  public long getStartTime() {
+    return this.startTime;
+  }
+  /** Set start time */
+  public void setStartTime(long startTime) {
+    this.startTime = startTime;
+  }
+
+  /** Get delta time */
+  public long getDeltaTime() {
+    return System.currentTimeMillis() - this.getStartTime();
   }
 
   /** Get name */
   public String getName() {
     return this.name;
   }
-
   /** Set name */
   public void setName(String name) {
     this.name = name;
@@ -67,7 +84,6 @@ public abstract class Auto {
   public SystemsGroup getSystemsGroup() {
     return this.systemsGroup;
   }
-
   /** Set group of systems */
   public void setSystemsGroup(SystemsGroup systemsGroup) {
     this.systemsGroup = systemsGroup;

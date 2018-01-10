@@ -23,6 +23,8 @@ public class AutosGroup {
     autosGroup = new ArrayList<Auto>();
     selectedKey = null;
 
+    autosGroup.add(new DoNothingAuto(systemsGroup));
+
   }
 
   /**
