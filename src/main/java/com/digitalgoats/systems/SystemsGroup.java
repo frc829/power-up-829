@@ -19,6 +19,7 @@ public class SystemsGroup implements IGoatSystem {
   // SystemsGroup
   public ArrayList<IGoatSystem> systems;
   public Drive drive;
+  public Manipulator manipulator;
 
   /**
    * Add all systems to SystemsGroup
@@ -32,9 +33,11 @@ public class SystemsGroup implements IGoatSystem {
     // Setup SystemsGroup
     systems = new ArrayList<IGoatSystem>();
     drive = new Drive(navx);
+    manipulator = new Manipulator();
 
     // Add Individual SystemsGroup
     systems.add(drive);
+    systems.add(manipulator);
 
     // Start Compressor
     compressor.clearAllPCMStickyFaults();
