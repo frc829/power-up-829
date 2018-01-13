@@ -76,8 +76,10 @@ public class Drive implements IGoatSystem {
    */
   public void updateDrive() {
     this.frontLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
+    this.midLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
     this.backLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
     this.frontRight.set(ControlMode.PercentOutput, this.getRightSpeed());
+    this.midRight.set(ControlMode.PercentOutput, this.getRightSpeed());
     this.backRight.set(ControlMode.PercentOutput, this.getRightSpeed());
   }
 
