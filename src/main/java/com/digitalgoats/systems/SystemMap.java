@@ -19,8 +19,8 @@ public enum SystemMap {
   DRIVE_TRANS_BACKWARD(1),
 
   // Manipulator Talons
-  MAN_LEFT_TALON(12),
-  MAN_RIGHT_TALON(11),
+  MAN_LEFT_TALON(17),
+  MAN_RIGHT_TALON(10),
 
   // Manipulator Pneumatics
   MAN_PCM(1),
