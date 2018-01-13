@@ -32,11 +32,11 @@ public class SystemsGroup implements IGoatSystem {
 
     // Setup SystemsGroup
     systems = new ArrayList<IGoatSystem>();
-    drive = new Drive(navx);
+    //drive = new Drive(navx);
     manipulator = new Manipulator();
 
     // Add Individual SystemsGroup
-    systems.add(drive);
+    //systems.add(drive);
     systems.add(manipulator);
 
     // Start Compressor

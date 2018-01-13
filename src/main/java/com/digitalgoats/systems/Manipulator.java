@@ -6,6 +6,7 @@ import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The system for controlling the Manipulator
@@ -30,11 +31,11 @@ public class Manipulator implements IGoatSystem {
     this.setRightSpeed(0);
 
     // Setup Objects
-    solenoid = new DoubleSolenoid(
+    /*solenoid = new DoubleSolenoid(
         SystemMap.MAN_PCM.getValue(),
         SystemMap.MAN_SOLENOID_FORWARD.getValue(),
         SystemMap.MAN_SOLENOID_BACKWARD.getValue()
-    );
+    );*/
     leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
 
@@ -53,7 +54,7 @@ public class Manipulator implements IGoatSystem {
   }
 
   public void updateSolenoid() {
-    this.solenoid.set(this.getSolenoidStatus() ? Value.kForward : Value.kReverse);
+    //this.solenoid.set(this.getSolenoidStatus() ? Value.kForward : Value.kReverse);
   }
 
   public void updateWheel() {
@@ -85,7 +86,7 @@ public class Manipulator implements IGoatSystem {
   }
   /** Set right speed */
   public void setRightSpeed(double rightSpeed) {
-    this.rightSpeed = this.rightSpeed;
+    this.rightSpeed = rightSpeed;
   }
 
   @Override
@@ -115,12 +116,15 @@ public class Manipulator implements IGoatSystem {
     }
 
     this.updateWheel();
-    this.updateSolenoid();
+    //this.updateSolenoid();
 
   }
 
   @Override
   public void updateSmartDashboard() {
+    SmartDashboard.putBoolean(this.getSystemName() + " SOLENOID", this.getSolenoidStatus());
+    SmartDashboard.putNumber(this.getSystemName() + " LEFT", this.getLeftSpeed());
+    SmartDashboard.putNumber(this.getSystemName() + " RIGHT", this.getRightSpeed());
   }
 
   @Override

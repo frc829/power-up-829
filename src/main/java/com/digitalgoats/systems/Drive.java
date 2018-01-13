@@ -238,6 +238,7 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
+    SmartDashboard.putBoolean(this.getSystemName() + " TRANSMISSION", this.getTransmissionStatus());
     SmartDashboard.putNumber(this.getSystemName() + " LEFT", this.getLeftSpeed());
     SmartDashboard.putNumber(this.getSystemName() + " RIGHT", this.getRightSpeed());
   }
