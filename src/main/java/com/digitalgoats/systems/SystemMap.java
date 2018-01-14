@@ -16,7 +16,16 @@ public enum SystemMap {
   // Drive Pneumatics
   DRIVE_PCM(1),
   DRIVE_TRANS_FORWARD(0),
-  DRIVE_TRANS_BACKWARD(1);
+  DRIVE_TRANS_BACKWARD(1),
+
+  // Manipulator Talons
+  MAN_LEFT_TALON(17),
+  MAN_RIGHT_TALON(10),
+
+  // Manipulator Pneumatics
+  MAN_PCM(1),
+  MAN_SOLENOID_FORWARD(0),
+  MAN_SOLENOID_BACKWARD(1);
 
   /** Value for the specified field */
   private int value;

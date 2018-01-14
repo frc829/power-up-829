@@ -36,9 +36,15 @@ public class Robot extends IterativeRobot {
   }
 
   @Override
+  public void disabledInit() {}
+
+  @Override
   public void autonomousInit() {
     autosGroup.setSelectedAuto((SendableChooser<String>)SmartDashboard.getData("AutoChooser"));
   }
+
+  @Override
+  public void teleopInit() {}
 
   @Override
   public void disabledPeriodic() {
@@ -47,6 +53,9 @@ public class Robot extends IterativeRobot {
     systemsGroup.updateSmartDashboard();
 
   }
+
+  @Override
+  public void robotPeriodic() {}
 
   @Override
   public void autonomousPeriodic() {
