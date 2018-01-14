@@ -3,6 +3,7 @@ package com.digitalgoats.systems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
+import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -104,18 +105,18 @@ public class Manipulator implements IGoatSystem {
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
-    if (driver.getButtonValue(LogitechButton.BUT_A)) {
-      this.setWheelSpeed(1, -1);
-    } else if (driver.getButtonValue(LogitechButton.BUT_B)) {
-      this.setWheelSpeed(-1, 1);
-    } else {
-      this.setWheelSpeed(0, 0);
+    if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
+      this.setSolenoidStatus(false);
+    } else if (operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
+      this.setSolenoidStatus(true);
     }
 
-    if (driver.getButtonValue(LogitechButton.BUT_X)) {
-      this.setSolenoidStatus(false);
-    } else if (driver.getButtonValue(LogitechButton.BUT_Y)) {
-      this.setSolenoidStatus(true);
+    if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
+      this.setWheelSpeed(operator.getAxisValue(LogitechAxis.LEFT_TRIGGER), -operator.getAxisValue(LogitechAxis.LEFT_TRIGGER));
+    } else if (operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER) >= .5) {
+      this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER), operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
+    } else {
+      this.setWheelSpeed(0, 0);
     }
 
     this.updateWheel();
