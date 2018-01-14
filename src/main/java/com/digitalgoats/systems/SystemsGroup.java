@@ -27,8 +27,8 @@ public class SystemsGroup implements IGoatSystem {
   public SystemsGroup() {
 
     // Setup Objects
-    navx = new AHRS(Port.kMXP);
-    compressor = new Compressor(SystemMap.DRIVE_PCM.getValue());
+    //navx = new AHRS(Port.kMXP);
+    compressor = new Compressor(SystemMap.MAN_PCM.getValue());
 
     // Setup SystemsGroup
     systems = new ArrayList<IGoatSystem>();

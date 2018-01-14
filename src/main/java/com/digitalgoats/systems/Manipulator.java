@@ -31,11 +31,11 @@ public class Manipulator implements IGoatSystem {
     this.setRightSpeed(0);
 
     // Setup Objects
-    /*solenoid = new DoubleSolenoid(
+    solenoid = new DoubleSolenoid(
         SystemMap.MAN_PCM.getValue(),
         SystemMap.MAN_SOLENOID_FORWARD.getValue(),
         SystemMap.MAN_SOLENOID_BACKWARD.getValue()
-    );*/
+    );
     leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
 
@@ -54,7 +54,7 @@ public class Manipulator implements IGoatSystem {
   }
 
   public void updateSolenoid() {
-    //this.solenoid.set(this.getSolenoidStatus() ? Value.kForward : Value.kReverse);
+    this.solenoid.set(this.getSolenoidStatus() ? Value.kForward : Value.kReverse);
   }
 
   public void updateWheel() {
@@ -116,7 +116,7 @@ public class Manipulator implements IGoatSystem {
     }
 
     this.updateWheel();
-    //this.updateSolenoid();
+    this.updateSolenoid();
 
   }
 
