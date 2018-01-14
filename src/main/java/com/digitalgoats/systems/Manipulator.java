@@ -106,13 +106,16 @@ public class Manipulator implements IGoatSystem {
 
     if (driver.getButtonValue(LogitechButton.BUT_A)) {
       this.setWheelSpeed(1, -1);
-      this.setSolenoidStatus(true);
     } else if (driver.getButtonValue(LogitechButton.BUT_B)) {
       this.setWheelSpeed(-1, 1);
-      this.setSolenoidStatus(false);
     } else {
       this.setWheelSpeed(0, 0);
+    }
+
+    if (driver.getButtonValue(LogitechButton.BUT_X)) {
       this.setSolenoidStatus(false);
+    } else if (driver.getButtonValue(LogitechButton.BUT_Y)) {
+      this.setSolenoidStatus(true);
     }
 
     this.updateWheel();

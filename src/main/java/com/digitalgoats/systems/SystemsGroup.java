@@ -27,16 +27,16 @@ public class SystemsGroup implements IGoatSystem {
   public SystemsGroup() {
 
     // Setup Objects
-    //navx = new AHRS(Port.kMXP);
+    navx = new AHRS(Port.kUSB);
     compressor = new Compressor(SystemMap.MAN_PCM.getValue());
 
     // Setup SystemsGroup
     systems = new ArrayList<IGoatSystem>();
-    //drive = new Drive(navx);
+    drive = new Drive(navx);
     manipulator = new Manipulator();
 
     // Add Individual SystemsGroup
-    //systems.add(drive);
+    systems.add(drive);
     systems.add(manipulator);
 
     // Start Compressor
@@ -55,6 +55,7 @@ public class SystemsGroup implements IGoatSystem {
 
   @Override
   public void autonomousUpdateSystem() {
+    compressor.start();
     for (IGoatSystem system : systems) {
       system.autonomousUpdateSystem();
     }
@@ -62,6 +63,7 @@ public class SystemsGroup implements IGoatSystem {
 
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
+    compressor.start();
     for (IGoatSystem system : systems) {
       system.teleopUpdateSystem(driver, operator);
     }
@@ -69,6 +71,7 @@ public class SystemsGroup implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
+    compressor.start();
     for (IGoatSystem system : systems) {
       system.updateSmartDashboard();
     }
