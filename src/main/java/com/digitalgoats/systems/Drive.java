@@ -222,8 +222,8 @@ public class Drive implements IGoatSystem {
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     this.setDriveSpeed(
-        -driver.getAxisValue(LogitechAxis.LEFT_Y),
-        -driver.getAxisValue(LogitechAxis.RIGHT_Y)
+        driver.getAxisValue(LogitechAxis.RIGHT_Y),
+        driver.getAxisValue(LogitechAxis.LEFT_Y)
     );
     /*if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
       this.userToggleTransmissionStatus();
