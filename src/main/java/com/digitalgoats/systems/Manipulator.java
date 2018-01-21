@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Manipulator implements IGoatSystem {
 
   // Constants
+  private final double stallSpeed = .125;
   private final long solenoidDelay = 250;
 
   // Fields
@@ -44,6 +45,7 @@ public class Manipulator implements IGoatSystem {
     );
     leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
+    rightWheel.setInverted(true);
 
   }
 
@@ -131,11 +133,11 @@ public class Manipulator implements IGoatSystem {
     }
 
     if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
-      this.setWheelSpeed(operator.getAxisValue(LogitechAxis.LEFT_TRIGGER), -operator.getAxisValue(LogitechAxis.LEFT_TRIGGER));
+      this.setWheelSpeed(operator.getAxisValue(LogitechAxis.LEFT_TRIGGER), operator.getAxisValue(LogitechAxis.LEFT_TRIGGER));
     } else if (operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER) >= .5) {
-      this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER), operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
+      this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER), -operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
     } else {
-      this.setWheelSpeed(.125, -.125);
+      this.setWheelSpeed(stallSpeed, stallSpeed);
     }
 
     this.updateWheel();
