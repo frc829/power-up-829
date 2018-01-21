@@ -1,5 +1,5 @@
 package com.digitalgoats.systems;
-
+import edu.wpi.first.wpilibj.Timer;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
@@ -106,9 +106,8 @@ public class Manipulator implements IGoatSystem {
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
-      this.setSolenoidStatus(false);
-    } else if (operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
-      this.setSolenoidStatus(true);
+      this.setSolenoidStatus(!this.getSolenoidStatus());
+      Timer.delay(.25);
     }
 
     if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
@@ -116,7 +115,7 @@ public class Manipulator implements IGoatSystem {
     } else if (operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER) >= .5) {
       this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER), operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
     } else {
-      this.setWheelSpeed(0, 0);
+      this.setWheelSpeed(.125, -.125);
     }
 
     this.updateWheel();
