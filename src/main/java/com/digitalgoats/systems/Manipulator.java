@@ -1,5 +1,4 @@
 package com.digitalgoats.systems;
-import edu.wpi.first.wpilibj.Timer;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
@@ -15,9 +14,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Manipulator implements IGoatSystem {
 
+  // Constants
+  private final long solenoidDelay = 250;
+
   // Fields
   private boolean solenoidStatus;
   private double leftSpeed, rightSpeed;
+  private long solenoidTime;
 
   // Objects
   private DoubleSolenoid solenoid;
@@ -30,6 +33,7 @@ public class Manipulator implements IGoatSystem {
     this.setSolenoidStatus(false);
     this.setLeftSpeed(0);
     this.setRightSpeed(0);
+    this.setSolenoidTime(0);
 
     // Setup Objects
     solenoid = new DoubleSolenoid(
@@ -90,6 +94,22 @@ public class Manipulator implements IGoatSystem {
     this.rightSpeed = rightSpeed;
   }
 
+  /** Get solenoid time */
+  public long getSolenoidTime() {
+    return this.solenoidTime;
+  }
+  /** Set solenoid time */
+  public void setSolenoidTime(long solenoidTime) {
+    this.solenoidTime = solenoidTime;
+  }
+
+  public void toggleSolenoidStatus() {
+    if (System.currentTimeMillis() - this.getSolenoidTime() >= solenoidDelay) {
+      this.setSolenoidStatus(!this.getSolenoidStatus());
+      this.setSolenoidTime(System.currentTimeMillis());
+    }
+  }
+
   @Override
   public void disabledUpdateSystem() {
     this.updateWheel();
@@ -106,8 +126,7 @@ public class Manipulator implements IGoatSystem {
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
-      this.setSolenoidStatus(!this.getSolenoidStatus());
-      Timer.delay(.25);
+      this.toggleSolenoidStatus();
     }
 
     if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
