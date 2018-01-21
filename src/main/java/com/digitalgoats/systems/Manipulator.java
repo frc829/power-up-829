@@ -43,7 +43,7 @@ public class Manipulator implements IGoatSystem {
         SystemMap.MAN_SOLENOID_FORWARD.getValue(),
         SystemMap.MAN_SOLENOID_BACKWARD.getValue()
     );
-    leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
+    //leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
     rightWheel.setInverted(true);
 
@@ -66,7 +66,7 @@ public class Manipulator implements IGoatSystem {
   }
 
   public void updateWheel() {
-    this.leftWheel.set(ControlMode.PercentOutput, this.getLeftSpeed());
+    //this.leftWheel.set(ControlMode.PercentOutput, this.getLeftSpeed());
     this.rightWheel.set(ControlMode.PercentOutput, this.getRightSpeed());
   }
 
@@ -147,9 +147,6 @@ public class Manipulator implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    SmartDashboard.putBoolean(this.getSystemName() + " SOLENOID", this.getSolenoidStatus());
-    SmartDashboard.putNumber(this.getSystemName() + " LEFT", this.getLeftSpeed());
-    SmartDashboard.putNumber(this.getSystemName() + " RIGHT", this.getRightSpeed());
   }
 
   @Override

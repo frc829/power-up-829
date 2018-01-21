@@ -31,7 +31,7 @@ public class Drive implements IGoatSystem {
   // Objects
   private AHRS navx;
   private DoubleSolenoid transmission;
-  private TalonSRX frontLeft, midLeft, frontRight, midRight;
+  private TalonSRX frontLeft, midLeft, backLeft, frontRight, midRight, backRight;
 
   /** Create instance of Drive System */
   public Drive(AHRS navx) {
@@ -52,8 +52,10 @@ public class Drive implements IGoatSystem {
     );*/
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
     this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
+    this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
+    this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
 
   }
 
@@ -75,8 +77,10 @@ public class Drive implements IGoatSystem {
   public void updateDrive() {
     this.frontLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
     this.midLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
+    this.backLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
     this.frontRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
     this.midRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
+    this.backRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
   }
 
   /**
@@ -235,9 +239,7 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    SmartDashboard.putBoolean(this.getSystemName() + " TRANSMISSION", this.getTransmissionStatus());
-    SmartDashboard.putNumber(this.getSystemName() + " LEFT", this.getLeftSpeed());
-    SmartDashboard.putNumber(this.getSystemName() + " RIGHT", this.getRightSpeed());
+    SmartDashboard.putNumber("NavX Angle", this.navx.getDisplacementX());
   }
 
   @Override
