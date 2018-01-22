@@ -58,7 +58,7 @@ public class Manipulator implements IGoatSystem {
         SystemMap.MAN_PIVOTSOLENOID_FORWARD.getValue(),
         SystemMap.MAN_PIVOTSOLENOID_BACKWARD.getValue()
     );*/
-    //leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
+    leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
     rightWheel.setInverted(true);
 

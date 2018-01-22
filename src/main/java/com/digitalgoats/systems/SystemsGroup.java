@@ -18,6 +18,7 @@ public class SystemsGroup implements IGoatSystem {
 
   // SystemsGroup
   public ArrayList<IGoatSystem> systems;
+  public Arm arm;
   public Drive drive;
   public Manipulator manipulator;
 
@@ -32,10 +33,12 @@ public class SystemsGroup implements IGoatSystem {
 
     // Setup SystemsGroup
     systems = new ArrayList<IGoatSystem>();
+    arm = new Arm();
     drive = new Drive(navx);
     manipulator = new Manipulator();
 
     // Add Individual SystemsGroup
+    systems.add(arm);
     systems.add(drive);
     systems.add(manipulator);
 
