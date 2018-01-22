@@ -16,22 +16,29 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Drive implements IGoatSystem {
 
-  // Constants
+  // region Constants
   private final double straightModifier = 1.20;
   private final double encoderThreshold = 40;
   private final double turnThreshold = 8.29;
   private final long transmissionDelay = 500;
+  // endregion
 
-  // Fields
+  // region Fields
   private boolean transmissionStatus;
   private double leftSpeed, rightSpeed;
   private double startAngle;
   private long transmissionTime;
+  // endregion
 
-  // Objects
+  // region Objects
+
   private AHRS navx;
   private DoubleSolenoid transmission;
   private TalonSRX frontLeft, midLeft, backLeft, frontRight, midRight, backRight;
+
+  // endregion
+
+  // region Constructor
 
   /** Create instance of Drive System */
   public Drive(AHRS navx) {
@@ -59,36 +66,9 @@ public class Drive implements IGoatSystem {
 
   }
 
-  /**
-   * Set speed for drive sides
-   * @param left
-   *  The percent output for left side of drive
-   * @param right
-   *  The percent output for right side of drive
-   */
-  public void setDriveSpeed(double left, double right) {
-    this.setLeftSpeed(left);
-    this.setRightSpeed(right);
-  }
+  // endregion
 
-  /**
-   * Update drive based on internal left and right speed variables
-   */
-  public void updateDrive() {
-    this.frontLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
-    this.midLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
-    this.backLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
-    this.frontRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
-    this.midRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
-    this.backRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
-  }
-
-  /**
-   * Update transmission based on internal transmission status
-   */
-  public void updateTransmission() {
-    this.transmission.set(this.getTransmissionStatus() ? Value.kForward : Value.kReverse);
-  }
+  // region Autonomous Methods
 
   /**
    * Drive straight using NavX control
@@ -156,12 +136,43 @@ public class Drive implements IGoatSystem {
     turnTowardAngle(angle, 1);
   }
 
-  /** User toggle transmission status */
-  public void userToggleTransmissionStatus() {
-    if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
-      this.setTransmissionTime(System.currentTimeMillis());
-      this.setTransmissionStatus(!this.getTransmissionStatus());
-    }
+  // endregion
+
+  // region Update Methods
+
+  /**
+   * Update drive based on internal left and right speed variables
+   */
+  public void updateDrive() {
+    this.frontLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
+    this.midLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
+    this.backLeft.set(ControlMode.PercentOutput, this.getLeftSpeed());
+    this.frontRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
+    this.midRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
+    this.backRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
+  }
+
+  /**
+   * Update transmission based on internal transmission status
+   */
+  public void updateTransmission() {
+    this.transmission.set(this.getTransmissionStatus() ? Value.kForward : Value.kReverse);
+  }
+
+  // endregion
+
+  // region Getters & Setters
+
+  /**
+   * Set speed for drive sides
+   * @param left
+   *  The percent output for left side of drive
+   * @param right
+   *  The percent output for right side of drive
+   */
+  public void setDriveSpeed(double left, double right) {
+    this.setLeftSpeed(left);
+    this.setRightSpeed(right);
   }
 
   /** Get transmission status */
@@ -209,6 +220,10 @@ public class Drive implements IGoatSystem {
     this.transmissionTime = transmissionTime;
   }
 
+  // endregion
+
+  // region Overridden Methods
+
   @Override
   public void disabledUpdateSystem() {
     this.setDriveSpeed(0, 0);
@@ -230,7 +245,10 @@ public class Drive implements IGoatSystem {
         driver.getAxisValue(LogitechAxis.LEFT_Y)
     );
     /*if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
-      this.userToggleTransmissionStatus();
+      if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
+        this.setTransmissionTime(System.currentTimeMillis());
+        this.setTransmissionStatus(!this.getTransmissionStatus());
+      }
     }*/
     //this.updateTransmission();
     this.updateDrive();
@@ -246,5 +264,7 @@ public class Drive implements IGoatSystem {
   public String getSystemName() {
     return "Drive";
   }
+
+  // endregion
 
 }

@@ -14,18 +14,29 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
  */
 public class Manipulator implements IGoatSystem {
 
-  // Constants
+  // region Constants
+
   private final double stallSpeed = .125;
   private final long gripSolenoidDelay = 250, pivotSolenoidDelay = 250;
 
-  // Fields
+  // endregion
+
+  // region Fields
+
   private boolean gripSolenoidStatus, pivotSolenoidStatus;
   private double leftSpeed, rightSpeed;
   private long gripSolenoidTime, pivotSolenoidTime;
 
-  // Objects
+  // endregion
+
+  // region Objects
+
   private DoubleSolenoid gripSolenoid, pivotSolenoid;
   private TalonSRX leftWheel, rightWheel;
+
+  // endregion
+
+  // region Constructor
 
   /** Create instance of Manipulator */
   public Manipulator() {
@@ -53,17 +64,13 @@ public class Manipulator implements IGoatSystem {
 
   }
 
-  /**
-   * Set wheel speed for left and right side
-   * @param left
-   *  The percent output for the left wheel
-   * @param right
-   *  The percent output for the right wheel
-   */
-  public void setWheelSpeed(double left, double right) {
-    this.setLeftSpeed(left);
-    this.setRightSpeed(right);
-  }
+  // endregion
+
+  // region Autonomous Methods
+
+  // endregion
+
+  // region Update Methods
 
   /**
    * Update grip solenoid based on status
@@ -85,6 +92,22 @@ public class Manipulator implements IGoatSystem {
   public void updateWheel() {
     this.leftWheel.set(ControlMode.PercentOutput, this.getLeftSpeed());
     this.rightWheel.set(ControlMode.PercentOutput, this.getRightSpeed());
+  }
+
+  // endregion
+
+  // region Getters & Setters
+
+  /**
+   * Set wheel speed for left and right side
+   * @param left
+   *  The percent output for the left wheel
+   * @param right
+   *  The percent output for the right wheel
+   */
+  public void setWheelSpeed(double left, double right) {
+    this.setLeftSpeed(left);
+    this.setRightSpeed(right);
   }
 
   /** Get grip solenoid status */
@@ -141,19 +164,9 @@ public class Manipulator implements IGoatSystem {
     this.pivotSolenoidTime = pivotSolenoidTime;
   }
 
-  public void toggleGripSolenoidStatus() {
-    if (System.currentTimeMillis() - this.getGripSolenoidTime() >= gripSolenoidDelay) {
-      this.setGripSolenoidStatus(!this.getGripSolenoidStatus());
-      this.setGripSolenoidTime(System.currentTimeMillis());
-    }
-  }
+  // endregion
 
-  public void togglePivotSolenoidStatus() {
-    if (System.currentTimeMillis() - this.getPivotSolenoidTime() >= pivotSolenoidDelay) {
-      this.setPivotSolenoidStatus(!this.getPivotSolenoidStatus());
-      this.setPivotSolenoidTime(System.currentTimeMillis());
-    }
-  }
+  // region Overridden
 
   @Override
   public void disabledUpdateSystem() {
@@ -173,7 +186,10 @@ public class Manipulator implements IGoatSystem {
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
-      this.toggleGripSolenoidStatus();
+      if (System.currentTimeMillis() - this.getGripSolenoidTime() >= gripSolenoidDelay) {
+        this.setGripSolenoidStatus(!this.getGripSolenoidStatus());
+        this.setGripSolenoidTime(System.currentTimeMillis());
+      }
     }
 
     if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
@@ -198,5 +214,7 @@ public class Manipulator implements IGoatSystem {
   public String getSystemName() {
     return "Manipulator";
   }
+
+  // endregion
 
 }
