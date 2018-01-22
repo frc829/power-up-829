@@ -27,7 +27,10 @@ public enum SystemMap {
   MAN_GRIPSOLENOID_FORWARD(0),
   MAN_GRIPSOLENOID_BACKWARD(1),
   MAN_PIVOTSOLENOID_FORWARD(2),
-  MAN_PIVOTSOLENOID_BACKWARD(3);
+  MAN_PIVOTSOLENOID_BACKWARD(3),
+
+  // Arm Talons
+  ARM_STAGEONE_TALON(18);
 
   /** Value for the specified field */
   private int value;
