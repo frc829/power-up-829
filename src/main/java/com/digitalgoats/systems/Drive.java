@@ -261,7 +261,7 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    SmartDashboard.putNumber("NavX Angle", this.navx.getAngleAdjustment());
+    SmartDashboard.putNumber("NavX Angle", this.navx.getAngle());
   }
 
   @Override
