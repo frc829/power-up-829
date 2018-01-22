@@ -16,15 +16,15 @@ public class Manipulator implements IGoatSystem {
 
   // Constants
   private final double stallSpeed = .125;
-  private final long gripSolenoidDelay = 250;
+  private final long gripSolenoidDelay = 250, pivotSolenoidDelay = 250;
 
   // Fields
-  private boolean gripSolenoidStatus;
+  private boolean gripSolenoidStatus, pivotSolenoidStatus;
   private double leftSpeed, rightSpeed;
-  private long gripSolenoidTime;
+  private long gripSolenoidTime, pivotSolenoidTime;
 
   // Objects
-  private DoubleSolenoid gripSolenoid;
+  private DoubleSolenoid gripSolenoid, pivotSolenoid;
   private TalonSRX leftWheel, rightWheel;
 
   /** Create instance of Manipulator */
@@ -42,6 +42,11 @@ public class Manipulator implements IGoatSystem {
         SystemMap.MAN_GRIPSOLENOID_FORWARD.getValue(),
         SystemMap.MAN_GRIPSOLENOID_BACKWARD.getValue()
     );
+    /*pivotSolenoid = new DoubleSolenoid(
+        SystemMap.MAN_PCM.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_FORWARD.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_BACKWARD.getValue()
+    );*/
     //leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
     rightWheel.setInverted(true);
@@ -60,22 +65,44 @@ public class Manipulator implements IGoatSystem {
     this.setRightSpeed(right);
   }
 
-  public void updateSolenoid() {
+  /**
+   * Update grip solenoid based on status
+   */
+  public void updateGripSolenoid() {
     this.gripSolenoid.set(this.getGripSolenoidStatus() ? Value.kForward : Value.kReverse);
   }
 
+  /**
+   * Update pivot solenoid based on status
+   */
+  public void updatePivotSolenoid() {
+    this.pivotSolenoid.set(this.getPivotSolenoidStatus() ? Value.kForward : Value.kReverse);
+  }
+
+  /**
+   * Update wheels based on speed
+   */
   public void updateWheel() {
-    //this.leftWheel.set(ControlMode.PercentOutput, this.getLeftSpeed());
+    this.leftWheel.set(ControlMode.PercentOutput, this.getLeftSpeed());
     this.rightWheel.set(ControlMode.PercentOutput, this.getRightSpeed());
   }
 
-  /** Get solenoid status */
+  /** Get grip solenoid status */
   public boolean getGripSolenoidStatus() {
     return this.gripSolenoidStatus;
   }
-  /** Set solenoid status */
+  /** Set grip solenoid status */
   public void setGripSolenoidStatus(boolean gripSolenoidStatus) {
     this.gripSolenoidStatus = gripSolenoidStatus;
+  }
+
+  /** Get pivot solenoid status */
+  public boolean getPivotSolenoidStatus() {
+    return this.pivotSolenoidStatus;
+  }
+  /** Set pivot solenoid status */
+  public void setPivotSolenoidStatus(boolean pivotSolenoidStatus) {
+    this.pivotSolenoidStatus = pivotSolenoidStatus;
   }
 
   /** Get left speed */
@@ -96,13 +123,22 @@ public class Manipulator implements IGoatSystem {
     this.rightSpeed = rightSpeed;
   }
 
-  /** Get solenoid time */
+  /** Get grip solenoid time */
   public long getGripSolenoidTime() {
     return this.gripSolenoidTime;
   }
-  /** Set solenoid time */
+  /** Set grip solenoid time */
   public void setGripSolenoidTime(long gripSolenoidTime) {
     this.gripSolenoidTime = gripSolenoidTime;
+  }
+
+  /** Get pivot solenoid time */
+  public long getPivotSolenoidTime() {
+    return this.pivotSolenoidTime;
+  }
+  /** Set pivot solenoid time */
+  public void setPivotSolenoidTime(long pivotSolenoidTime) {
+    this.pivotSolenoidTime = pivotSolenoidTime;
   }
 
   public void toggleGripSolenoidStatus() {
@@ -112,16 +148,25 @@ public class Manipulator implements IGoatSystem {
     }
   }
 
+  public void togglePivotSolenoidStatus() {
+    if (System.currentTimeMillis() - this.getPivotSolenoidTime() >= pivotSolenoidDelay) {
+      this.setPivotSolenoidStatus(!this.getPivotSolenoidStatus());
+      this.setPivotSolenoidTime(System.currentTimeMillis());
+    }
+  }
+
   @Override
   public void disabledUpdateSystem() {
     this.updateWheel();
-    this.updateSolenoid();
+    this.updateGripSolenoid();
+    //this.updatePivotSolenoid();
   }
 
   @Override
   public void autonomousUpdateSystem() {
     this.updateWheel();
-    this.updateSolenoid();
+    this.updateGripSolenoid();
+    //this.updatePivotSolenoid();
   }
 
   @Override
@@ -140,7 +185,8 @@ public class Manipulator implements IGoatSystem {
     }
 
     this.updateWheel();
-    this.updateSolenoid();
+    this.updateGripSolenoid();
+    //this.updatePivotSolenoid();
 
   }
 
