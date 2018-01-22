@@ -7,7 +7,6 @@ import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The system for controlling the Manipulator
@@ -17,31 +16,31 @@ public class Manipulator implements IGoatSystem {
 
   // Constants
   private final double stallSpeed = .125;
-  private final long solenoidDelay = 250;
+  private final long gripSolenoidDelay = 250;
 
   // Fields
-  private boolean solenoidStatus;
+  private boolean gripSolenoidStatus;
   private double leftSpeed, rightSpeed;
-  private long solenoidTime;
+  private long gripSolenoidTime;
 
   // Objects
-  private DoubleSolenoid solenoid;
+  private DoubleSolenoid gripSolenoid;
   private TalonSRX leftWheel, rightWheel;
 
   /** Create instance of Manipulator */
   public Manipulator() {
 
     // Setup Fields
-    this.setSolenoidStatus(false);
+    this.setGripSolenoidStatus(false);
     this.setLeftSpeed(0);
     this.setRightSpeed(0);
-    this.setSolenoidTime(0);
+    this.setGripSolenoidTime(0);
 
     // Setup Objects
-    solenoid = new DoubleSolenoid(
+    gripSolenoid = new DoubleSolenoid(
         SystemMap.MAN_PCM.getValue(),
-        SystemMap.MAN_SOLENOID_FORWARD.getValue(),
-        SystemMap.MAN_SOLENOID_BACKWARD.getValue()
+        SystemMap.MAN_GRIPSOLENOID_FORWARD.getValue(),
+        SystemMap.MAN_GRIPSOLENOID_BACKWARD.getValue()
     );
     //leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
@@ -62,7 +61,7 @@ public class Manipulator implements IGoatSystem {
   }
 
   public void updateSolenoid() {
-    this.solenoid.set(this.getSolenoidStatus() ? Value.kForward : Value.kReverse);
+    this.gripSolenoid.set(this.getGripSolenoidStatus() ? Value.kForward : Value.kReverse);
   }
 
   public void updateWheel() {
@@ -71,12 +70,12 @@ public class Manipulator implements IGoatSystem {
   }
 
   /** Get solenoid status */
-  public boolean getSolenoidStatus() {
-    return this.solenoidStatus;
+  public boolean getGripSolenoidStatus() {
+    return this.gripSolenoidStatus;
   }
   /** Set solenoid status */
-  public void setSolenoidStatus(boolean solenoidStatus) {
-    this.solenoidStatus = solenoidStatus;
+  public void setGripSolenoidStatus(boolean gripSolenoidStatus) {
+    this.gripSolenoidStatus = gripSolenoidStatus;
   }
 
   /** Get left speed */
@@ -98,18 +97,18 @@ public class Manipulator implements IGoatSystem {
   }
 
   /** Get solenoid time */
-  public long getSolenoidTime() {
-    return this.solenoidTime;
+  public long getGripSolenoidTime() {
+    return this.gripSolenoidTime;
   }
   /** Set solenoid time */
-  public void setSolenoidTime(long solenoidTime) {
-    this.solenoidTime = solenoidTime;
+  public void setGripSolenoidTime(long gripSolenoidTime) {
+    this.gripSolenoidTime = gripSolenoidTime;
   }
 
-  public void toggleSolenoidStatus() {
-    if (System.currentTimeMillis() - this.getSolenoidTime() >= solenoidDelay) {
-      this.setSolenoidStatus(!this.getSolenoidStatus());
-      this.setSolenoidTime(System.currentTimeMillis());
+  public void toggleGripSolenoidStatus() {
+    if (System.currentTimeMillis() - this.getGripSolenoidTime() >= gripSolenoidDelay) {
+      this.setGripSolenoidStatus(!this.getGripSolenoidStatus());
+      this.setGripSolenoidTime(System.currentTimeMillis());
     }
   }
 
@@ -129,7 +128,7 @@ public class Manipulator implements IGoatSystem {
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
-      this.toggleSolenoidStatus();
+      this.toggleGripSolenoidStatus();
     }
 
     if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
