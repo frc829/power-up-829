@@ -17,17 +17,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Drive implements IGoatSystem {
 
   // region Constants
+
   private final double straightModifier = 1.20;
   private final double encoderThreshold = 40;
   private final double turnThreshold = 8.29;
   private final long transmissionDelay = 500;
+
   // endregion
 
   // region Fields
+
   private boolean transmissionStatus;
   private double leftSpeed, rightSpeed;
   private double startAngle;
   private long transmissionTime;
+
   // endregion
 
   // region Objects

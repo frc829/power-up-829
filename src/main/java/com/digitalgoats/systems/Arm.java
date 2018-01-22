@@ -8,6 +8,36 @@ import com.digitalgoats.util.LogitechF310;
  */
 public class Arm implements IGoatSystem {
 
+  // region Constants
+
+  // endregion
+
+  // region Fields
+
+  // endregion
+
+  // region Objects
+
+  // endregion
+
+  // region Constructor
+
+  // endregion
+
+  // region Autonomous Methods
+
+  // endregion
+
+  // region Update Methods
+
+  // endregion
+
+  // region Getters & Setters
+
+  // endregion
+
+  // region Overridden Methods
+
   @Override
   public void disabledUpdateSystem() {
   }
@@ -26,7 +56,9 @@ public class Arm implements IGoatSystem {
 
   @Override
   public String getSystemName() {
-    return "Arm";
+    return "Example";
   }
+
+  // endregion
 
 }
