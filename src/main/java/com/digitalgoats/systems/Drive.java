@@ -56,16 +56,18 @@ public class Drive implements IGoatSystem {
 
     // Setup Objects
     this.navx = navx;
-    /*this.transmission = new DoubleSolenoid(
+    this.transmission = new DoubleSolenoid(
         SystemMap.DRIVE_PCM.getValue(),
         SystemMap.DRIVE_TRANS_FORWARD.getValue(),
         SystemMap.DRIVE_TRANS_BACKWARD.getValue()
-    );*/
+    );
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
     this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
+    this.midLeft.setInverted(true);
     this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
+    this.midRight.setInverted(true);
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
 
   }
@@ -232,29 +234,29 @@ public class Drive implements IGoatSystem {
   public void disabledUpdateSystem() {
     this.setDriveSpeed(0, 0);
     this.updateDrive();
-    //this.updateTransmission();
+    this.updateTransmission();
   }
 
   @Override
   public void autonomousUpdateSystem() {
     this.updateDrive();
-    //this.updateTransmission();
+    this.updateTransmission();
   }
 
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     this.setDriveSpeed(
-        driver.getAxisValue(LogitechAxis.RIGHT_Y),
+        -driver.getAxisValue(LogitechAxis.RIGHT_Y),
         driver.getAxisValue(LogitechAxis.LEFT_Y)
     );
-    /*if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
+    if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
       if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
         this.setTransmissionTime(System.currentTimeMillis());
         this.setTransmissionStatus(!this.getTransmissionStatus());
       }
-    }*/
-    //this.updateTransmission();
+    }
+    this.updateTransmission();
     this.updateDrive();
 
   }

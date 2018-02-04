@@ -6,12 +6,12 @@ package com.digitalgoats.systems;
 public enum SystemMap {
 
   // Drive Talons
-  DRIVE_FRONTLEFT_TALON(12),
+  DRIVE_FRONTLEFT_TALON(10),
   DRIVE_MIDLEFT_TALON(11),
-  DRIVE_BACKLEFT_TALON(10),
-  DRIVE_FRONTRIGHT_TALON(15),
-  DRIVE_MIDRIGHT_TALON(16),
-  DRIVE_BACKRIGHT_TALON(17),
+  DRIVE_BACKLEFT_TALON(12),
+  DRIVE_FRONTRIGHT_TALON(13),
+  DRIVE_MIDRIGHT_TALON(14),
+  DRIVE_BACKRIGHT_TALON(15),
 
   // Drive Pneumatics
   DRIVE_PCM(1),
@@ -19,8 +19,8 @@ public enum SystemMap {
   DRIVE_TRANS_BACKWARD(1),
 
   // Manipulator Talons
-  MAN_LEFT_TALON(13),
-  MAN_RIGHT_TALON(14),
+  MAN_LEFT_TALON(16),
+  MAN_RIGHT_TALON(17),
 
   // Manipulator Pneumatics
   MAN_PCM(1),
@@ -30,7 +30,9 @@ public enum SystemMap {
   MAN_PIVOTSOLENOID_BACKWARD(3),
 
   // Arm Talons
-  ARM_STAGEONE_TALON(18);
+  ARM_STAGEONE_TALON(18),
+  ARM_STAGETWO_TALON(19),
+  ARM_PIVOT_TALON(20);
 
   /** Value for the specified field */
   private int value;

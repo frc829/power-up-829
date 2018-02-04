@@ -24,6 +24,7 @@ public class AutosGroup {
     selectedKey = null;
 
     autosGroup.add(new DoNothingAuto(systemsGroup));
+    autosGroup.add(new DriveForwardAuto(systemsGroup));
 
   }
 

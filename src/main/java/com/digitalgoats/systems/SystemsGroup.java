@@ -33,14 +33,14 @@ public class SystemsGroup implements IGoatSystem {
 
     // Setup SystemsGroup
     systems = new ArrayList<IGoatSystem>();
-    arm = new Arm();
+    //arm = new Arm();
     drive = new Drive(navx);
-    manipulator = new Manipulator();
+    //manipulator = new Manipulator();
 
     // Add Individual SystemsGroup
-    systems.add(arm);
+    //systems.add(arm);
     systems.add(drive);
-    systems.add(manipulator);
+    //systems.add(manipulator);
 
     // Start Compressor
     compressor.clearAllPCMStickyFaults();
