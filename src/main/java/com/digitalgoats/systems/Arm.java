@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The system for controlling the arm
@@ -52,8 +53,20 @@ public class Arm implements IGoatSystem {
   // region Update Methods
 
   public void updateStages() {
-    this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
-    this.stageTwo.follow(this.stageOne);
+
+    boolean goingUp = this.getStageSpeed() > 0;
+    boolean goingDown = this.getStageSpeed() < 0;
+    boolean topLimit = !this.stageOne.getSensorCollection().isFwdLimitSwitchClosed();
+    boolean botLimit = !this.stageOne.getSensorCollection().isRevLimitSwitchClosed();
+
+    if ((goingUp && topLimit) || (goingDown && botLimit)) {
+      this.stageOne.set(ControlMode.PercentOutput, 0);
+      this.stageTwo.follow(this.stageOne);
+    } else {
+      this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
+      this.stageTwo.follow(this.stageOne);
+    }
+
   }
 
   // endregion
@@ -99,6 +112,8 @@ public class Arm implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
+    SmartDashboard.putBoolean("Arm Forward", this.stageOne.getSensorCollection().isFwdLimitSwitchClosed());
+    SmartDashboard.putBoolean("Arm Reverse", this.stageOne.getSensorCollection().isRevLimitSwitchClosed());
   }
 
   @Override

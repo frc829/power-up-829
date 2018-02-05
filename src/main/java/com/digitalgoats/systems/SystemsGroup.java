@@ -2,6 +2,7 @@ package com.digitalgoats.systems;
 
 import com.digitalgoats.util.LogitechF310;
 import com.kauailabs.navx.frc.AHRS;
+import com.kauailabs.navx.frc.AHRS.SerialDataType;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import java.util.ArrayList;
@@ -27,8 +28,9 @@ public class SystemsGroup implements IGoatSystem {
    */
   public SystemsGroup() {
 
+    byte rate = 60;
     // Setup Objects
-    navx = new AHRS(Port.kUSB);
+    navx = new AHRS(Port.kMXP, SerialDataType.kRawData, rate);
     compressor = new Compressor(SystemMap.MAN_PCM.getValue());
 
     // Setup SystemsGroup

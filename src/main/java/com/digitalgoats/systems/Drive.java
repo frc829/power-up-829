@@ -263,7 +263,9 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
+    SmartDashboard.putBoolean("Drive Transmission: HIGH?", this.getTransmissionStatus());
     SmartDashboard.putNumber("NavX Angle", this.navx.getAngle());
+    SmartDashboard.putNumber("NavX Displacement", this.navx.getDisplacementX());
   }
 
   @Override
