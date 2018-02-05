@@ -19,8 +19,9 @@ public enum SystemMap {
   DRIVE_TRANS_BACKWARD(1),
 
   // Manipulator Talons
-  MAN_LEFT_TALON(16),
-  MAN_RIGHT_TALON(17),
+  MAN_LEFT_TALON(18),
+  MAN_RIGHT_TALON(19),
+  MAN_PIVOT_TALON(20),
 
   // Manipulator Pneumatics
   MAN_PCM(1),
@@ -30,9 +31,8 @@ public enum SystemMap {
   MAN_PIVOTSOLENOID_BACKWARD(3),
 
   // Arm Talons
-  ARM_STAGEONE_TALON(18),
-  ARM_STAGETWO_TALON(19),
-  ARM_PIVOT_TALON(20);
+  ARM_STAGEONE_TALON(16),
+  ARM_STAGETWO_TALON(17);
 
   /** Value for the specified field */
   private int value;

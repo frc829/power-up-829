@@ -1,8 +1,12 @@
 package com.digitalgoats.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
+import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
+import com.digitalgoats.util.LogitechF310.LogitechButton;
 
 /**
  * The system for controlling the arm
@@ -16,13 +20,13 @@ public class Arm implements IGoatSystem {
 
   // region Fields
 
-  private double stageOneSpeed;
+  private double stageSpeed;
 
   // endregion
 
   // region Objects
 
-  private TalonSRX stageOne;
+  private TalonSRX stageOne, stageTwo;
 
   // endregion
 
@@ -31,10 +35,11 @@ public class Arm implements IGoatSystem {
   public Arm() {
 
     // Setup Fields
-    this.setStageOneSpeed(0);
+    this.setStageSpeed(0);
 
     // Setup Objects
     this.stageOne = new TalonSRX(SystemMap.ARM_STAGEONE_TALON.getValue());
+    this.stageTwo = new TalonSRX(SystemMap.ARM_STAGETWO_TALON.getValue());
 
   }
 
@@ -47,35 +52,21 @@ public class Arm implements IGoatSystem {
   // region Update Methods
 
   public void updateStages() {
-    this.updateStageOne();
-  }
-
-  public void updateStageOne() {
-    this.stageOne.set(ControlMode.PercentOutput, this.getStageOneSpeed());
+    this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
+    this.stageTwo.follow(this.stageOne);
   }
 
   // endregion
 
   // region Getters & Setters
 
-  /**
-   * Set the speed for both stages
-   * @param stageOne
-   *  The percent output for stage one
-   * @param stageTwo
-   *  The percent output for stage two
-   */
-  public void setStages(double stageOne, double stageTwo) {
-    this.setStageOneSpeed(stageOne);
+  /** Get stage speed */
+  public double getStageSpeed() {
+    return this.stageSpeed;
   }
-
-  /** Get stage one's speed */
-  public double getStageOneSpeed() {
-    return this.stageOneSpeed;
-  }
-  /** Set stage one's speed */
-  public void setStageOneSpeed(double stageOneSpeed) {
-    this.stageOneSpeed = stageOneSpeed;
+  /** Set stage speed */
+  public void setStageSpeed(double stageSpeed) {
+    this.stageSpeed = stageSpeed;
   }
 
   // endregion
@@ -94,7 +85,16 @@ public class Arm implements IGoatSystem {
 
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
+
+    if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
+      this.setStageSpeed(.5);
+    } else if (operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
+      this.setStageSpeed(-.5);
+    } else {
+      this.setStageSpeed(0);
+    }
     this.updateStages();
+
   }
 
   @Override
