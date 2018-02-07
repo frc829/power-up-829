@@ -104,7 +104,7 @@ public class Arm implements IGoatSystem {
     } else if (operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
       this.setStageSpeed(-.5);
     } else {
-      this.setStageSpeed(0);
+      this.setStageSpeed(0.125/2);
     }
     this.updateStages();
 
