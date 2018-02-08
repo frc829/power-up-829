@@ -30,7 +30,12 @@ public enum SystemMap {
 
   // Arm Talons
   ARM_STAGEONE_TALON(16),
-  ARM_STAGETWO_TALON(17);
+  ARM_STAGETWO_TALON(17),
+
+  // Arm Pneumatics
+  ARM_PCM(1),
+  ARM_TRANS_FORWARD(2),
+  ARM_TRANS_BACKWARD(3);
 
   /** Value for the specified field */
   private int value;

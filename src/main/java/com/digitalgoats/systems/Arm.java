@@ -7,6 +7,8 @@ import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -17,16 +19,21 @@ public class Arm implements IGoatSystem {
 
   // region Constants
 
+  private final long transmissionDelay = 500;
+
   // endregion
 
   // region Fields
 
+  private boolean transmissionStatus;
   private double stageSpeed;
+  private long transmissionTime;
 
   // endregion
 
   // region Objects
 
+  private DoubleSolenoid transmission;
   private TalonSRX stageOne, stageTwo;
 
   // endregion
@@ -39,6 +46,11 @@ public class Arm implements IGoatSystem {
     this.setStageSpeed(0);
 
     // Setup Objects
+    this.transmission = new DoubleSolenoid(
+        SystemMap.ARM_PCM.getValue(),
+        SystemMap.ARM_TRANS_FORWARD.getValue(),
+        SystemMap.ARM_TRANS_BACKWARD.getValue()
+    );
     this.stageOne = new TalonSRX(SystemMap.ARM_STAGEONE_TALON.getValue());
     this.stageTwo = new TalonSRX(SystemMap.ARM_STAGETWO_TALON.getValue());
 
@@ -60,7 +72,7 @@ public class Arm implements IGoatSystem {
     boolean botLimit = !this.stageOne.getSensorCollection().isRevLimitSwitchClosed();
 
     if ((goingUp && topLimit) || (goingDown && botLimit)) {
-      this.stageOne.set(ControlMode.PercentOutput, 0);
+      this.stageOne.set(ControlMode.PercentOutput, 0.0625);
       this.stageTwo.follow(this.stageOne);
     } else {
       this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
@@ -69,9 +81,22 @@ public class Arm implements IGoatSystem {
 
   }
 
+  public void updateTransmission() {
+    this.transmission.set(this.getTransmissionStatus() ? Value.kForward : Value.kReverse);
+  }
+
   // endregion
 
   // region Getters & Setters
+
+  /** Get transmission status */
+  public boolean getTransmissionStatus() {
+    return this.transmissionStatus;
+  }
+  /** Set transmission status */
+  public void setTransmissionStatus(boolean transmissionStatus) {
+    this.transmissionStatus = transmissionStatus;
+  }
 
   /** Get stage speed */
   public double getStageSpeed() {
@@ -82,6 +107,15 @@ public class Arm implements IGoatSystem {
     this.stageSpeed = stageSpeed;
   }
 
+  /** Get transmission time */
+  public long getTransmissionTime() {
+    return this.transmissionTime;
+  }
+  /** Set transmission time */
+  public void setTransmissionTime(long transmissionTime) {
+    this.transmissionTime = transmissionTime;
+  }
+
   // endregion
 
   // region Overridden Methods
@@ -89,24 +123,33 @@ public class Arm implements IGoatSystem {
   @Override
   public void disabledUpdateSystem() {
     this.updateStages();
+    this.updateTransmission();
   }
 
   @Override
   public void autonomousUpdateSystem() {
     this.updateStages();
+    this.updateTransmission();
   }
 
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
-    if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
+    if (operator.getButtonValue(LogitechButton.BUMPER_LEFT) && operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
+      if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
+        this.setTransmissionTime(System.currentTimeMillis());
+        this.setTransmissionStatus(!this.getTransmissionStatus());
+      }
+    } else if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
       this.setStageSpeed(.5);
     } else if (operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
       this.setStageSpeed(-.5);
     } else {
-      this.setStageSpeed(0.125/2);
+      this.setStageSpeed(0.0625);
     }
+
     this.updateStages();
+    this.updateTransmission();
 
   }
 
