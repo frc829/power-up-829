@@ -18,8 +18,6 @@ public class Robot extends IterativeRobot {
   // Controllers
   LogitechF310[] controllers = new LogitechF310[2];
 
-  TalonSRX testMotor;
-
   // Systems and Autos
   SystemsGroup systemsGroup;
   AutosGroup autosGroup;
@@ -30,8 +28,6 @@ public class Robot extends IterativeRobot {
     // Setup Controllers
     controllers[0] = new LogitechF310(0);
     controllers[1] = new LogitechF310(1);
-
-    testMotor = new TalonSRX(20);
 
     // Setup Systems and Autos
     systemsGroup = new SystemsGroup();
@@ -76,10 +72,7 @@ public class Robot extends IterativeRobot {
   @Override
   public void teleopPeriodic() {
 
-    testMotor.set(ControlMode.PercentOutput, controllers[1].getAxisValue(LogitechAxis.LEFT_Y));
-
     systemsGroup.teleopUpdateSystem(controllers[0], controllers[1]);
-    SmartDashboard.putNumber("Motor Value", testMotor.getSensorCollection().getPulseWidthPosition());
     systemsGroup.updateSmartDashboard();
 
   }

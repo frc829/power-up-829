@@ -157,6 +157,7 @@ public class Arm implements IGoatSystem {
   public void updateSmartDashboard() {
     SmartDashboard.putBoolean("Arm Forward", this.stageOne.getSensorCollection().isFwdLimitSwitchClosed());
     SmartDashboard.putBoolean("Arm Reverse", this.stageOne.getSensorCollection().isRevLimitSwitchClosed());
+    SmartDashboard.putNumber("TALON TACHOMETER", this.stageOne.getSensorCollection().getPulseWidthRiseToFallUs());
   }
 
   @Override
