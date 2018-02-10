@@ -66,18 +66,18 @@ public class Arm implements IGoatSystem {
 
   public void updateStages() {
 
-    boolean goingUp = this.getStageSpeed() > 0;
-    boolean goingDown = this.getStageSpeed() < 0;
-    boolean topLimit = !this.stageOne.getSensorCollection().isFwdLimitSwitchClosed();
-    boolean botLimit = !this.stageOne.getSensorCollection().isRevLimitSwitchClosed();
+    //boolean goingUp = this.getStageSpeed() > 0;
+    //boolean goingDown = this.getStageSpeed() < 0;
+    //boolean topLimit = !this.stageOne.getSensorCollection().isFwdLimitSwitchClosed();
+    //boolean botLimit = !this.stageOne.getSensorCollection().isRevLimitSwitchClosed();
 
-    if ((goingUp && topLimit) || (goingDown && botLimit)) {
+    /*if ((goingUp && topLimit) || (goingDown && botLimit)) {
       this.stageOne.set(ControlMode.PercentOutput, 0.0625);
       this.stageTwo.follow(this.stageOne);
-    } else {
+    } else {*/
       this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
       this.stageTwo.follow(this.stageOne);
-    }
+    //}
 
   }
 
@@ -155,9 +155,8 @@ public class Arm implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    SmartDashboard.putBoolean("Arm Forward", this.stageOne.getSensorCollection().isFwdLimitSwitchClosed());
-    SmartDashboard.putBoolean("Arm Reverse", this.stageOne.getSensorCollection().isRevLimitSwitchClosed());
-    SmartDashboard.putNumber("TALON TACHOMETER", this.stageOne.getSensorCollection().getPulseWidthRiseToFallUs());
+    //SmartDashboard.putBoolean("Arm Forward", this.stageOne.getSensorCollection().isFwdLimitSwitchClosed());
+    //SmartDashboard.putBoolean("Arm Reverse", this.stageOne.getSensorCollection().isRevLimitSwitchClosed());
   }
 
   @Override

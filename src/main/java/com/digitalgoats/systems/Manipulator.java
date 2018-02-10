@@ -31,7 +31,7 @@ public class Manipulator implements IGoatSystem {
 
   // region Objects
 
-  private DoubleSolenoid gripSolenoid, pivotSolenoid;
+  private DoubleSolenoid gripSolenoid, pivotSolenoid, pivotSolenoid2;
   private TalonSRX leftWheel, rightWheel;
 
   // endregion
@@ -53,11 +53,16 @@ public class Manipulator implements IGoatSystem {
         SystemMap.MAN_GRIPSOLENOID_FORWARD.getValue(),
         SystemMap.MAN_GRIPSOLENOID_BACKWARD.getValue()
     );
-    /*pivotSolenoid = new DoubleSolenoid(
+    pivotSolenoid = new DoubleSolenoid(
         SystemMap.MAN_PCM.getValue(),
         SystemMap.MAN_PIVOTSOLENOID_FORWARD.getValue(),
         SystemMap.MAN_PIVOTSOLENOID_BACKWARD.getValue()
-    );*/
+    );
+    pivotSolenoid2 = new DoubleSolenoid(
+        SystemMap.MAN_PCM.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_2_FORWARD.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_2_BACKWARD.getValue()
+    );
     leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
     rightWheel.setInverted(true);
@@ -84,6 +89,7 @@ public class Manipulator implements IGoatSystem {
    */
   public void updatePivotSolenoid() {
     this.pivotSolenoid.set(this.getPivotSolenoidStatus() ? Value.kForward : Value.kReverse);
+    this.pivotSolenoid2.set(this.getPivotSolenoidStatus() ? Value.kForward : Value.kReverse);
   }
 
   /**
@@ -172,14 +178,14 @@ public class Manipulator implements IGoatSystem {
   public void disabledUpdateSystem() {
     this.updateWheel();
     this.updateGripSolenoid();
-    //this.updatePivotSolenoid();
+    this.updatePivotSolenoid();
   }
 
   @Override
   public void autonomousUpdateSystem() {
     this.updateWheel();
     this.updateGripSolenoid();
-    //this.updatePivotSolenoid();
+    this.updatePivotSolenoid();
   }
 
   @Override
@@ -202,7 +208,7 @@ public class Manipulator implements IGoatSystem {
 
     this.updateWheel();
     this.updateGripSolenoid();
-    //this.updatePivotSolenoid();
+    this.updatePivotSolenoid();
 
   }
 
