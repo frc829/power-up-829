@@ -7,6 +7,7 @@ import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The system for controlling the Manipulator
@@ -24,7 +25,7 @@ public class Manipulator implements IGoatSystem {
   // region Fields
 
   private boolean gripSolenoidStatus, pivotSolenoidStatus;
-  private double leftSpeed, rightSpeed;
+  private double wheelSpeed;
   private long gripSolenoidTime, pivotSolenoidTime;
 
   // endregion
@@ -43,8 +44,7 @@ public class Manipulator implements IGoatSystem {
 
     // Setup Fields
     this.setGripSolenoidStatus(false);
-    this.setLeftSpeed(0);
-    this.setRightSpeed(0);
+    this.setWheelSpeed(stallSpeed);
     this.setGripSolenoidTime(0);
 
     // Setup Objects
@@ -96,25 +96,13 @@ public class Manipulator implements IGoatSystem {
    * Update wheels based on speed
    */
   public void updateWheel() {
-    this.leftWheel.set(ControlMode.PercentOutput, this.getLeftSpeed());
-    this.rightWheel.set(ControlMode.PercentOutput, this.getRightSpeed());
+    this.leftWheel.set(ControlMode.PercentOutput, this.getWheelSpeed());
+    this.rightWheel.follow(this.leftWheel);
   }
 
   // endregion
 
   // region Getters & Setters
-
-  /**
-   * Set wheel speed for left and right side
-   * @param left
-   *  The percent output for the left wheel
-   * @param right
-   *  The percent output for the right wheel
-   */
-  public void setWheelSpeed(double left, double right) {
-    this.setLeftSpeed(left);
-    this.setRightSpeed(right);
-  }
 
   /** Get grip solenoid status */
   public boolean getGripSolenoidStatus() {
@@ -134,22 +122,13 @@ public class Manipulator implements IGoatSystem {
     this.pivotSolenoidStatus = pivotSolenoidStatus;
   }
 
-  /** Get left speed */
-  public double getLeftSpeed() {
-    return this.leftSpeed;
+  /** Get wheel speed */
+  public double getWheelSpeed() {
+    return this.wheelSpeed;
   }
-  /** Set left speed */
-  public void setLeftSpeed(double leftSpeed) {
-    this.leftSpeed = leftSpeed;
-  }
-
-  /** Get right speed */
-  public double getRightSpeed() {
-    return this.rightSpeed;
-  }
-  /** Set right speed */
-  public void setRightSpeed(double rightSpeed) {
-    this.rightSpeed = rightSpeed;
+  /** Set wheel speed */
+  public void setWheelSpeed(double wheelSpeed) {
+    this.wheelSpeed = wheelSpeed;
   }
 
   /** Get grip solenoid time */
@@ -199,11 +178,11 @@ public class Manipulator implements IGoatSystem {
     }
 
     if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
-      this.setWheelSpeed(operator.getAxisValue(LogitechAxis.LEFT_TRIGGER), operator.getAxisValue(LogitechAxis.LEFT_TRIGGER));
+      this.setWheelSpeed(operator.getAxisValue(LogitechAxis.LEFT_TRIGGER));
     } else if (operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER) >= .5) {
-      this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER), -operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
+      this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
     } else {
-      this.setWheelSpeed(stallSpeed, stallSpeed);
+      this.setWheelSpeed(stallSpeed);
     }
 
     this.updateWheel();
@@ -214,6 +193,11 @@ public class Manipulator implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
+    SmartDashboard.putString("Manipulator: Grip Status", this.getGripSolenoidStatus() ?
+        "Gripping" : "Not Gripping");
+    SmartDashboard.putString("Manipulator: Pivot Status", this.getPivotSolenoidStatus() ?
+        "Down" : "Up");
+    SmartDashboard.putNumber("Manipulator: Wheel Speed", this.getWheelSpeed());
   }
 
   @Override

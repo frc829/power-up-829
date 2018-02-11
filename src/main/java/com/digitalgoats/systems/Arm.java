@@ -155,8 +155,8 @@ public class Arm implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    //SmartDashboard.putBoolean("Arm Forward", this.stageOne.getSensorCollection().isFwdLimitSwitchClosed());
-    //SmartDashboard.putBoolean("Arm Reverse", this.stageOne.getSensorCollection().isRevLimitSwitchClosed());
+    SmartDashboard.putString("Arm: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
+    SmartDashboard.putNumber("Arm: Stage Speed", this.getStageSpeed());
   }
 
   @Override

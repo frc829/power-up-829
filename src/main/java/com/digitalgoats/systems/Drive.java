@@ -247,8 +247,8 @@ public class Drive implements IGoatSystem {
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     this.setDriveSpeed(
-        -driver.getAxisValue(LogitechAxis.RIGHT_Y),
-        driver.getAxisValue(LogitechAxis.LEFT_Y)
+        driver.getAxisValue(LogitechAxis.RIGHT_Y),
+        -driver.getAxisValue(LogitechAxis.LEFT_Y)
     );
     if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
       if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
@@ -263,9 +263,13 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    SmartDashboard.putBoolean("Drive Transmission: HIGH?", this.getTransmissionStatus());
-    SmartDashboard.putNumber("NavX Angle", this.navx.getAngle());
-    SmartDashboard.putNumber("NavX Displacement", this.navx.getDisplacementX());
+    SmartDashboard.putString("Drive: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
+    SmartDashboard.putNumber("Drive: Left Speed", this.getLeftSpeed());
+    SmartDashboard.putNumber("Drive: Right Speed", this.getRightSpeed());
+    SmartDashboard.putNumber("NavX: Current Angle", this.navx.getAngle());
+    SmartDashboard.putNumber("NavX: X Displacement", this.navx.getDisplacementX());
+    SmartDashboard.putNumber("NavX: Y Displacement", this.navx.getDisplacementY());
+    SmartDashboard.putNumber("NavX: Z Displacement", this.navx.getDisplacementZ());
   }
 
   @Override

@@ -36,6 +36,8 @@ public class Robot extends IterativeRobot {
     // Send SendableChooser
     SmartDashboard.putData("AutoChooser", autosGroup.createSendableChooser());
 
+    systemsGroup.startCamera();
+
   }
 
   @Override

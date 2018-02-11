@@ -3,8 +3,15 @@ package com.digitalgoats.systems;
 import com.digitalgoats.util.LogitechF310;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS.SerialDataType;
+import edu.wpi.cscore.VideoCamera;
+import edu.wpi.cscore.VideoSource;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.SerialPort.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 /**
@@ -28,9 +35,9 @@ public class SystemsGroup implements IGoatSystem {
    */
   public SystemsGroup() {
 
-    byte rate = 60;
     // Setup Objects
-    navx = new AHRS(Port.kMXP, SerialDataType.kRawData, rate);
+    navx = new AHRS(I2C.Port.kMXP);
+    navx.resetDisplacement();
     compressor = new Compressor(SystemMap.MAN_PCM.getValue());
 
     // Setup SystemsGroup
@@ -48,6 +55,10 @@ public class SystemsGroup implements IGoatSystem {
     compressor.clearAllPCMStickyFaults();
     compressor.start();
 
+  }
+
+  public void startCamera() {
+    CameraServer.getInstance().startAutomaticCapture();
   }
 
   @Override
@@ -76,7 +87,8 @@ public class SystemsGroup implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    compressor.start();
+    NetworkTableInstance.getDefault().getEntry("/CameraPublisher/MAIN CAMER/streams")
+        .setStringArray(new String[] {"mjpeg:http://roborio-2013-frc.local:1181/?action=stream", "mjpeg:http://10.20.13.2:1181/?action=stream"});
     for (IGoatSystem system : systems) {
       system.updateSmartDashboard();
     }
