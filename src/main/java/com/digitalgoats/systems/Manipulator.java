@@ -170,7 +170,7 @@ public class Manipulator implements IGoatSystem {
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
-    if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
+    /*if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
       if (System.currentTimeMillis() - this.getGripSolenoidTime() >= gripSolenoidDelay) {
         this.setGripSolenoidStatus(!this.getGripSolenoidStatus());
         this.setGripSolenoidTime(System.currentTimeMillis());
@@ -183,7 +183,7 @@ public class Manipulator implements IGoatSystem {
       this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
     } else {
       this.setWheelSpeed(stallSpeed);
-    }
+    }*/
 
     this.updateWheel();
     this.updateGripSolenoid();

@@ -1,6 +1,7 @@
 package com.digitalgoats.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechAxis;
@@ -62,13 +63,17 @@ public class Drive implements IGoatSystem {
         SystemMap.DRIVE_TRANS_BACKWARD.getValue()
     );
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
+    this.frontLeft.setNeutralMode(NeutralMode.Coast);
     this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
-    this.midLeft.setInverted(true);
+    this.midLeft.setNeutralMode(NeutralMode.Coast);
     this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
+    this.backLeft.setNeutralMode(NeutralMode.Coast);
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
+    this.frontRight.setNeutralMode(NeutralMode.Coast);
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
-    this.midRight.setInverted(true);
+    this.midRight.setNeutralMode(NeutralMode.Coast);
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
+    this.backRight.setNeutralMode(NeutralMode.Coast);
 
   }
 

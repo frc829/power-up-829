@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
+import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -140,10 +141,8 @@ public class Arm implements IGoatSystem {
         this.setTransmissionTime(System.currentTimeMillis());
         this.setTransmissionStatus(!this.getTransmissionStatus());
       }
-    } else if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
-      this.setStageSpeed(.5);
-    } else if (operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
-      this.setStageSpeed(-.5);
+    } else if (Math.abs(operator.getAxisValue(LogitechAxis.LEFT_Y)) > .1) {
+      this.setStageSpeed(-operator.getAxisValue(LogitechAxis.LEFT_Y));
     } else {
       this.setStageSpeed(0.0625);
     }

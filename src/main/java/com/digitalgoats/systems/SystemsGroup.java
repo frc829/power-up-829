@@ -3,8 +3,14 @@ package com.digitalgoats.systems;
 import com.digitalgoats.util.LogitechF310;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS.SerialDataType;
+import edu.wpi.cscore.AxisCamera;
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoCamera;
+import edu.wpi.cscore.VideoMode;
+import edu.wpi.cscore.VideoMode.PixelFormat;
+import edu.wpi.cscore.VideoSink;
 import edu.wpi.cscore.VideoSource;
+import edu.wpi.cscore.VideoSource.Kind;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -58,7 +64,7 @@ public class SystemsGroup implements IGoatSystem {
   }
 
   public void startCamera() {
-    CameraServer.getInstance().startAutomaticCapture();
+    CameraServer.getInstance().startAutomaticCapture().setVideoMode(PixelFormat.kYUYV, 320, 240, 15);
   }
 
   @Override
@@ -87,8 +93,6 @@ public class SystemsGroup implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    NetworkTableInstance.getDefault().getEntry("/CameraPublisher/MAIN CAMER/streams")
-        .setStringArray(new String[] {"mjpeg:http://roborio-2013-frc.local:1181/?action=stream", "mjpeg:http://10.20.13.2:1181/?action=stream"});
     for (IGoatSystem system : systems) {
       system.updateSmartDashboard();
     }
