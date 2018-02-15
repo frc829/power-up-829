@@ -1,6 +1,7 @@
 package com.digitalgoats.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
@@ -24,6 +25,11 @@ public class Drive implements IGoatSystem {
   private final double encoderThreshold = 40;
   private final double turnThreshold = 8.29;
   private final long transmissionDelay = 500;
+  private final int slotIdx = 0;
+  private final int pidIdx = 0;
+  private final int timeoutMs = 10;
+  private final double rightKu = 7*2.25;
+  private final double rightTu = .25*(2.25*2.25);
 
   // endregion
 
@@ -64,18 +70,31 @@ public class Drive implements IGoatSystem {
     );
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
     this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
-    this.midLeft.selectProfileSlot(0, 0);
-    this.midLeft.config_kP(0, 0, 1000);
-    this.midLeft.config_kI(0, 0, 1000);
-    this.midLeft.config_kD(0, 0, 1000);
     this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
-    this.midRight.selectProfileSlot(0, 0);
-    this.midRight.config_kP(0, 0, 1000);
-    this.midRight.config_kI(0, 0, 1000);
-    this.midRight.config_kD(0, 0, 1000);
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
+
+    this.midLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    this.midLeft.setSensorPhase(true);
+    this.midRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    this.midRight.setSensorPhase(true);
+
+    this.midLeft.configNominalOutputForward(0, timeoutMs);
+    this.midRight.configNominalOutputForward(0, timeoutMs);
+    this.midLeft.configNominalOutputReverse(0, timeoutMs);
+    this.midRight.configNominalOutputReverse(0, timeoutMs);
+    this.midLeft.configPeakOutputForward(.25, timeoutMs);
+    this.midRight.configPeakOutputForward(.25, timeoutMs);
+    this.midLeft.configPeakOutputReverse(-.25, timeoutMs);
+    this.midRight.configPeakOutputReverse(-.25, timeoutMs);
+
+    this.midLeft.config_kP(slotIdx, 0, timeoutMs);
+    this.midLeft.config_kI(slotIdx, 0, timeoutMs);
+    this.midLeft.config_kD(slotIdx, 0, timeoutMs);
+    this.midRight.config_kP(slotIdx, 0, timeoutMs);
+    this.midRight.config_kI(slotIdx, 0, timeoutMs);
+    this.midRight.config_kD(slotIdx, 0, timeoutMs);
 
   }
 
@@ -150,10 +169,10 @@ public class Drive implements IGoatSystem {
   }
 
   public void updateDriveVelocity() {
-    this.midLeft.set(ControlMode.Position, this.getLeftSpeed());
+    this.midLeft.set(ControlMode.Velocity, this.getLeftSpeed());
     this.frontLeft.follow(this.midLeft);
     this.backLeft.follow(this.midLeft);
-    this.midRight.set(ControlMode.Position, this.getRightSpeed());
+    this.midRight.set(ControlMode.Velocity, this.getRightSpeed());
     this.frontRight.follow(this.midRight);
     this.backRight.follow(this.midRight);
   }

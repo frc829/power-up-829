@@ -30,7 +30,7 @@ public class DriveForwardAuto extends Auto {
        */
       case 1: {
         if (this.getDeltaTime() > 3000) { /*this.nextStep();*/ }
-        this.systemsGroup.drive.setDriveSpeed(100, 100);
+        this.systemsGroup.drive.setDriveSpeed(10, 10);
         break;
       }
 
