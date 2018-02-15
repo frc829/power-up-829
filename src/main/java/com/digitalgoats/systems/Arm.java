@@ -10,6 +10,7 @@ import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -34,7 +35,7 @@ public class Arm implements IGoatSystem {
 
   // region Objects
 
-  private DoubleSolenoid transmission;
+  private Solenoid transmission;
   private TalonSRX stageOne, stageTwo;
 
   // endregion
@@ -47,10 +48,9 @@ public class Arm implements IGoatSystem {
     this.setStageSpeed(0);
 
     // Setup Objects
-    this.transmission = new DoubleSolenoid(
+    this.transmission = new Solenoid(
         SystemMap.ARM_PCM.getValue(),
-        SystemMap.ARM_TRANS_FORWARD.getValue(),
-        SystemMap.ARM_TRANS_BACKWARD.getValue()
+        SystemMap.ARM_TRANS_FORWARD.getValue()
     );
     this.stageOne = new TalonSRX(SystemMap.ARM_STAGEONE_TALON.getValue());
     this.stageTwo = new TalonSRX(SystemMap.ARM_STAGETWO_TALON.getValue());
@@ -83,7 +83,7 @@ public class Arm implements IGoatSystem {
   }
 
   public void updateTransmission() {
-    this.transmission.set(this.getTransmissionStatus() ? Value.kForward : Value.kReverse);
+    this.transmission.set(this.getTransmissionStatus());
   }
 
   // endregion

@@ -35,6 +35,7 @@ public class AutosGroup {
    */
   public void setSelectedAuto(SendableChooser<String> chooser) {
     this.selectedKey = chooser.getSelected();
+    this.findAutoByName(this.selectedKey).setStep(0);
   }
 
   /**

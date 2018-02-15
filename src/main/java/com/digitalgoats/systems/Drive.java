@@ -9,6 +9,7 @@ import com.digitalgoats.util.LogitechF310.LogitechButton;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -38,7 +39,7 @@ public class Drive implements IGoatSystem {
   // region Objects
 
   private AHRS navx;
-  private DoubleSolenoid transmission;
+  private Solenoid transmission;
   private TalonSRX frontLeft, midLeft, backLeft, frontRight, midRight, backRight;
 
   // endregion
@@ -57,23 +58,24 @@ public class Drive implements IGoatSystem {
 
     // Setup Objects
     this.navx = navx;
-    this.transmission = new DoubleSolenoid(
+    this.transmission = new Solenoid(
         SystemMap.DRIVE_PCM.getValue(),
-        SystemMap.DRIVE_TRANS_FORWARD.getValue(),
-        SystemMap.DRIVE_TRANS_BACKWARD.getValue()
+        SystemMap.DRIVE_TRANS_FORWARD.getValue()
     );
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
-    this.frontLeft.setNeutralMode(NeutralMode.Coast);
     this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
-    this.midLeft.setNeutralMode(NeutralMode.Coast);
+    this.midLeft.selectProfileSlot(0, 0);
+    this.midLeft.config_kP(0, 0, 1000);
+    this.midLeft.config_kI(0, 0, 1000);
+    this.midLeft.config_kD(0, 0, 1000);
     this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
-    this.backLeft.setNeutralMode(NeutralMode.Coast);
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
-    this.frontRight.setNeutralMode(NeutralMode.Coast);
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
-    this.midRight.setNeutralMode(NeutralMode.Coast);
+    this.midRight.selectProfileSlot(0, 0);
+    this.midRight.config_kP(0, 0, 1000);
+    this.midRight.config_kI(0, 0, 1000);
+    this.midRight.config_kD(0, 0, 1000);
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
-    this.backRight.setNeutralMode(NeutralMode.Coast);
 
   }
 
@@ -91,22 +93,6 @@ public class Drive implements IGoatSystem {
     double deltaAngle = this.navx.getAngle() - this.getStartAngle();
     double left = (deltaAngle > 0) ? speed : speed * straightModifier;
     double right = (deltaAngle < 0) ? speed * straightModifier : speed;
-    this.setDriveSpeed(left, right);
-
-  }
-
-  /**
-   * Drive straight using encoder control
-   * @param speed
-   *  The desired percent output speed
-   */
-  public void driveStraightEncoders(double speed) {
-
-    double leftEncoder = this.frontLeft.getSelectedSensorPosition(0);
-    double rightEncoder = this.frontRight.getSelectedSensorPosition(0);
-    double deltaEncoder = leftEncoder - rightEncoder;
-    double left = (deltaEncoder > encoderThreshold) ? speed : speed * straightModifier;
-    double right = (deltaEncoder < -encoderThreshold) ? speed * straightModifier : speed;
     this.setDriveSpeed(left, right);
 
   }
@@ -163,11 +149,20 @@ public class Drive implements IGoatSystem {
     this.backRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
   }
 
+  public void updateDriveVelocity() {
+    this.midLeft.set(ControlMode.Position, this.getLeftSpeed());
+    this.frontLeft.follow(this.midLeft);
+    this.backLeft.follow(this.midLeft);
+    this.midRight.set(ControlMode.Position, this.getRightSpeed());
+    this.frontRight.follow(this.midRight);
+    this.backRight.follow(this.midRight);
+  }
+
   /**
    * Update transmission based on internal transmission status
    */
   public void updateTransmission() {
-    this.transmission.set(this.getTransmissionStatus() ? Value.kForward : Value.kReverse);
+    this.transmission.set(this.getTransmissionStatus());
   }
 
   // endregion
@@ -244,7 +239,7 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void autonomousUpdateSystem() {
-    this.updateDrive();
+    this.updateDriveVelocity();
     this.updateTransmission();
   }
 
@@ -252,7 +247,7 @@ public class Drive implements IGoatSystem {
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
     this.setDriveSpeed(
-        driver.getAxisValue(LogitechAxis.RIGHT_Y),
+        -driver.getAxisValue(LogitechAxis.RIGHT_Y),
         -driver.getAxisValue(LogitechAxis.LEFT_Y)
     );
     if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
@@ -269,8 +264,10 @@ public class Drive implements IGoatSystem {
   @Override
   public void updateSmartDashboard() {
     SmartDashboard.putString("Drive: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
-    SmartDashboard.putNumber("Drive: Left Speed", this.getLeftSpeed());
-    SmartDashboard.putNumber("Drive: Right Speed", this.getRightSpeed());
+    SmartDashboard.putNumber("Drive: Left Velocity", this.midLeft.getSelectedSensorVelocity(0));
+    SmartDashboard.putNumber("Drive: Right Velocity", this.midRight.getSelectedSensorVelocity(0));
+    SmartDashboard.putNumber("Drive: Left Position", this.midLeft.getSelectedSensorPosition(0));
+    SmartDashboard.putNumber("Drive: Right Position", this.midRight.getSelectedSensorPosition(0));
     SmartDashboard.putNumber("NavX: Current Angle", this.navx.getAngle());
     SmartDashboard.putNumber("NavX: X Displacement", this.navx.getDisplacementX());
     SmartDashboard.putNumber("NavX: Y Displacement", this.navx.getDisplacementY());
