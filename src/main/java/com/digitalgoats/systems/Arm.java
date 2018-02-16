@@ -22,7 +22,7 @@ public class Arm implements IGoatSystem {
 
   // region Constants
 
-  private final int BOTTOM_POSITION = 0, SWITCH_POSITION = 1, SCALE_POSITION = 2, TOP_POSITION = 4;
+  private final int BOTTOM_POSITION = 0, SWITCH_POSITION = 1, SCALE_POSITION = 2, TOP_POSITION = 3;
   private final long transmissionDelay = 500;
 
   // endregion
