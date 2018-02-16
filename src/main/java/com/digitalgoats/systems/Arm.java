@@ -75,18 +75,8 @@ public class Arm implements IGoatSystem {
 
   public void updateStages() {
 
-    //boolean goingUp = this.getStageSpeed() > 0;
-    //boolean goingDown = this.getStageSpeed() < 0;
-    //boolean topLimit = !this.stageOne.getSensorCollection().isFwdLimitSwitchClosed();
-    //boolean botLimit = !this.stageOne.getSensorCollection().isRevLimitSwitchClosed();
-
-    /*if ((goingUp && topLimit) || (goingDown && botLimit)) {
-      this.stageOne.set(ControlMode.PercentOutput, 0.0625);
-      this.stageTwo.follow(this.stageOne);
-    } else {*/
-      this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
-      this.stageTwo.follow(this.stageOne);
-    //}
+    this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
+    this.stageTwo.follow(this.stageOne);
 
   }
 
