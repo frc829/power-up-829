@@ -136,7 +136,7 @@ public class Arm implements IGoatSystem {
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
-    if (operator.getButtonValue(LogitechButton.BUMPER_LEFT) && operator.getButtonValue(LogitechButton.BUMPER_RIGHT)) {
+    if (operator.getButtonValue(LogitechButton.JOY_LEFT_BUT)) {
       if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
         this.setTransmissionTime(System.currentTimeMillis());
         this.setTransmissionStatus(!this.getTransmissionStatus());

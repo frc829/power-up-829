@@ -17,14 +17,18 @@ public class Manipulator implements IGoatSystem {
 
   // region Constants
 
-  private final double stallSpeed = .125;
+  private final double stallSpeed = 0;
   private final long gripSolenoidDelay = 250, pivotSolenoidDelay = 250;
+  private final int PIVOT_MID = 0;
+  private final int PIVOT_UP = 1;
+  private final int PIVOT_LOW = 2;
 
   // endregion
 
   // region Fields
 
-  private boolean gripSolenoidStatus, pivotSolenoidStatus;
+  private boolean gripSolenoidStatus;
+  private int pivotSolenoidStatus;
   private double wheelSpeed;
   private long gripSolenoidTime, pivotSolenoidTime;
 
@@ -44,6 +48,7 @@ public class Manipulator implements IGoatSystem {
 
     // Setup Fields
     this.setGripSolenoidStatus(false);
+    this.setPivotSolenoidStatus(0);
     this.setWheelSpeed(stallSpeed);
     this.setGripSolenoidTime(0);
 
@@ -88,8 +93,23 @@ public class Manipulator implements IGoatSystem {
    * Update pivot solenoid based on status
    */
   public void updatePivotSolenoid() {
-    this.pivotSolenoid.set(this.getPivotSolenoidStatus() ? Value.kForward : Value.kReverse);
-    this.pivotSolenoid2.set(this.getPivotSolenoidStatus() ? Value.kForward : Value.kReverse);
+    switch (this.getPivotSolenoidStatus()) {
+      case PIVOT_MID: {
+        this.pivotSolenoid.set(Value.kForward);
+        this.pivotSolenoid2.set(Value.kReverse);
+        break;
+      }
+      case PIVOT_LOW: {
+        this.pivotSolenoid.set(Value.kForward);
+        this.pivotSolenoid2.set(Value.kForward);
+        break;
+      }
+      case PIVOT_UP: {
+        this.pivotSolenoid.set(Value.kReverse);
+        this.pivotSolenoid2.set(Value.kReverse);
+        break;
+      }
+    }
   }
 
   /**
@@ -114,11 +134,11 @@ public class Manipulator implements IGoatSystem {
   }
 
   /** Get pivot solenoid status */
-  public boolean getPivotSolenoidStatus() {
+  public int getPivotSolenoidStatus() {
     return this.pivotSolenoidStatus;
   }
   /** Set pivot solenoid status */
-  public void setPivotSolenoidStatus(boolean pivotSolenoidStatus) {
+  public void setPivotSolenoidStatus(int pivotSolenoidStatus) {
     this.pivotSolenoidStatus = pivotSolenoidStatus;
   }
 
@@ -170,20 +190,35 @@ public class Manipulator implements IGoatSystem {
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
-    /*if (operator.getButtonValue(LogitechButton.BUMPER_LEFT)) {
-      if (System.currentTimeMillis() - this.getGripSolenoidTime() >= gripSolenoidDelay) {
-        this.setGripSolenoidStatus(!this.getGripSolenoidStatus());
+    if (operator.getButtonValue(LogitechButton.BUT_A)) {
+      this.setWheelSpeed(1);
+    } else if (operator.getButtonValue(LogitechButton.BUT_B)) {
+      this.setWheelSpeed(-1);
+    } else {
+      this.setWheelSpeed(stallSpeed);
+    }
+
+    if (operator.getButtonValue(LogitechButton.BUT_X)) {
+      if (System.currentTimeMillis() - this.gripSolenoidTime >= gripSolenoidDelay) {
         this.setGripSolenoidTime(System.currentTimeMillis());
+        this.setGripSolenoidStatus(!this.getGripSolenoidStatus());
       }
     }
 
-    if (operator.getAxisValue(LogitechAxis.LEFT_TRIGGER) >= .5) {
-      this.setWheelSpeed(operator.getAxisValue(LogitechAxis.LEFT_TRIGGER));
-    } else if (operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER) >= .5) {
-      this.setWheelSpeed(-operator.getAxisValue(LogitechAxis.RIGHT_TRIGGER));
-    } else {
-      this.setWheelSpeed(stallSpeed);
-    }*/
+    if (operator.getButtonValue(LogitechButton.BUT_Y)) {
+      if (System.currentTimeMillis() - this.pivotSolenoidTime >= pivotSolenoidDelay) {
+        this.setPivotSolenoidTime(System.currentTimeMillis());
+        if (this.getPivotSolenoidStatus() == PIVOT_MID) {
+          this.setPivotSolenoidStatus(PIVOT_LOW);
+        } else {
+          this.setPivotSolenoidStatus(PIVOT_MID);
+        }
+      }
+    }
+
+    if (operator.getButtonValue(LogitechButton.BUT_START) && operator.getButtonValue(LogitechButton.BUT_BACK)) {
+      this.setPivotSolenoidStatus(PIVOT_UP);
+    }
 
     this.updateWheel();
     this.updateGripSolenoid();
@@ -195,8 +230,7 @@ public class Manipulator implements IGoatSystem {
   public void updateSmartDashboard() {
     SmartDashboard.putString("Manipulator: Grip Status", this.getGripSolenoidStatus() ?
         "Gripping" : "Not Gripping");
-    SmartDashboard.putString("Manipulator: Pivot Status", this.getPivotSolenoidStatus() ?
-        "Down" : "Up");
+    SmartDashboard.putNumber("Manipulator: Pivot Status", this.getPivotSolenoidStatus());
     SmartDashboard.putNumber("Manipulator: Wheel Speed", this.getWheelSpeed());
   }
 
