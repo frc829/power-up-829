@@ -47,7 +47,7 @@ public class Manipulator implements IGoatSystem {
 
     // Setup Fields
     this.setGripSolenoidStatus(false);
-    this.setPivotSolenoidStatus(0);
+    this.setPivotSolenoidStatus(PIVOT_UP);
     this.setWheelSpeed(stallSpeed);
     this.setGripSolenoidTime(0);
 
