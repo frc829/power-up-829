@@ -75,7 +75,7 @@ public class Drive implements IGoatSystem {
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
 
-    this.midLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    /*this.midLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.midLeft.setSensorPhase(true);
     this.midRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.midRight.setSensorPhase(true);
@@ -94,63 +94,13 @@ public class Drive implements IGoatSystem {
     this.midLeft.config_kD(slotIdx, 0, timeoutMs);
     this.midRight.config_kP(slotIdx, 0, timeoutMs);
     this.midRight.config_kI(slotIdx, 0, timeoutMs);
-    this.midRight.config_kD(slotIdx, 0, timeoutMs);
+    this.midRight.config_kD(slotIdx, 0, timeoutMs);*/
 
   }
 
   // endregion
 
   // region Autonomous Methods
-
-  /**
-   * Drive straight using NavX control
-   * @param speed
-   *  The desired percent output speed
-   */
-  public void driveStraightNavX(double speed) {
-
-    double deltaAngle = this.navx.getAngle() - this.getStartAngle();
-    double left = (deltaAngle > 0) ? speed : speed * straightModifier;
-    double right = (deltaAngle < 0) ? speed * straightModifier : speed;
-    this.setDriveSpeed(left, right);
-
-  }
-
-  /**
-   * Check that robot is at specified angle
-   * @param angle
-   *  Desired robot angle
-   * @return
-   *  true if robot is at desired angle, otherwise false
-   */
-  public boolean atAngle(double angle) {
-    return Math.abs(this.navx.getAngle() - this.getStartAngle()) <= turnThreshold;
-  }
-
-  /**
-   * Turn toward specified angle
-   * @param angle
-   *  Angle to turn toward
-   * @param speed
-   *  The desired percent output speed
-   */
-  public void turnTowardAngle(double angle, double speed) {
-
-    double deltaAngle = this.navx.getAngle() - this.getStartAngle();
-    double left = (deltaAngle > turnThreshold) ? 0 : speed;
-    double right = (deltaAngle < -turnThreshold) ? speed : 0;
-    this.setDriveSpeed(left, right);
-
-  }
-
-  /**
-   * Turn toward specified angle
-   * @param angle
-   *  Angle to turn toward
-   */
-  public void turnTowardAngle(double angle) {
-    turnTowardAngle(angle, 1);
-  }
 
   // endregion
 
@@ -166,15 +116,6 @@ public class Drive implements IGoatSystem {
     this.frontRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
     this.midRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
     this.backRight.set(ControlMode.PercentOutput, -this.getRightSpeed());
-  }
-
-  public void updateDriveVelocity() {
-    this.midLeft.set(ControlMode.Velocity, this.getLeftSpeed());
-    this.frontLeft.follow(this.midLeft);
-    this.backLeft.follow(this.midLeft);
-    this.midRight.set(ControlMode.Velocity, this.getRightSpeed());
-    this.frontRight.follow(this.midRight);
-    this.backRight.follow(this.midRight);
   }
 
   /**
@@ -258,7 +199,7 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void autonomousUpdateSystem() {
-    this.updateDriveVelocity();
+    this.updateDrive();
     this.updateTransmission();
   }
 

@@ -39,6 +39,10 @@ public class LogitechF310 extends Joystick {
     return this.getRawButton(button.getValue());
   }
 
+  public boolean getDpad(LogitechPad pad) {
+    return this.getPOV() == pad.getValue();
+  }
+
   /**
    * Button values for LogitechF310
    */
@@ -91,6 +95,23 @@ public class LogitechF310 extends Joystick {
     }
 
     /** Get the field's value */
+    public int getValue() {
+      return this.value;
+    }
+
+  }
+
+  public enum LogitechPad {
+
+    UP(0),
+    DOWN(180),
+    LEFT(270),
+    RIGHT(90);
+
+    private int value;
+    private LogitechPad(int value) {
+      this.value = value;
+    }
     public int getValue() {
       return this.value;
     }

@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,9 +20,7 @@ public class Manipulator implements IGoatSystem {
 
   private final double stallSpeed = 0;
   private final long gripSolenoidDelay = 250, pivotSolenoidDelay = 250;
-  private final int PIVOT_MID = 0;
-  private final int PIVOT_UP = 1;
-  private final int PIVOT_LOW = 2;
+  private final int PIVOT_MID = 0, PIVOT_UP = 1, PIVOT_LOW = 2;
 
   // endregion
 

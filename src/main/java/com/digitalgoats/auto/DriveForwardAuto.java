@@ -14,7 +14,7 @@ public class DriveForwardAuto extends Auto {
 
   @Override
   public void execute() {
-    System.out.println(this.getName() + ": STEP " + this.getStep());
+
     switch (this.getStep()) {
 
       // Set starting time and go to next step
@@ -29,7 +29,7 @@ public class DriveForwardAuto extends Auto {
        * Otherwise drive straight
        */
       case 1: {
-        if (this.getDeltaTime() > 3000) { /*this.nextStep();*/ }
+        if (this.getDeltaTime() > 3000) { this.nextStep(); }
         this.systemsGroup.drive.setDriveSpeed(10, 10);
         break;
       }

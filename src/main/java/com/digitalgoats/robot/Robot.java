@@ -6,6 +6,7 @@ import com.digitalgoats.auto.AutosGroup;
 import com.digitalgoats.systems.SystemsGroup;
 import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechAxis;
+import com.digitalgoats.util.LogitechF310.LogitechPad;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
