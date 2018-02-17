@@ -9,6 +9,8 @@ import com.digitalgoats.systems.SystemsGroup;
  */
 public class DriveForwardAuto extends Auto {
 
+  private final int FEET_MULTIPLIER = 0;
+
   public DriveForwardAuto(SystemsGroup systemsGroup) {
     super("Drive Forward", systemsGroup);
   }
@@ -21,6 +23,7 @@ public class DriveForwardAuto extends Auto {
       // Set starting time and go to next step
       case 0: {
         this.setStartTime(System.currentTimeMillis());
+        this.systemsGroup.drive.setTransmissionStatus(true);
         this.nextStep();
         break;
       }
@@ -30,9 +33,9 @@ public class DriveForwardAuto extends Auto {
        * Otherwise drive straight
        */
       case 1: {
-        if (this.getDeltaTime() > 3000) { /*this.nextStep();*/ }
-        this.systemsGroup.drive.setControlMode(ControlMode.Velocity);
-        this.systemsGroup.drive.setDriveSpeed(10, 10);
+        if (this.getDeltaTime() > 3000) { this.nextStep(); }
+        this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
+        this.systemsGroup.drive.setDriveSpeed(1, 1);
         break;
       }
 

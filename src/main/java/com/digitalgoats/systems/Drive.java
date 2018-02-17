@@ -73,11 +73,11 @@ public class Drive implements IGoatSystem {
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
-    this.midRight.setInverted(true);
-    this.frontRight.setInverted(true);
-    this.backRight.setInverted(true);
+    this.midLeft.setInverted(true);
+    this.frontLeft.setInverted(true);
+    this.backLeft.setInverted(true);
 
-    /*this.midLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    this.midLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.midLeft.setSensorPhase(true);
     this.midRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.midRight.setSensorPhase(true);
@@ -86,10 +86,10 @@ public class Drive implements IGoatSystem {
     this.midRight.configNominalOutputForward(0, timeoutMs);
     this.midLeft.configNominalOutputReverse(0, timeoutMs);
     this.midRight.configNominalOutputReverse(0, timeoutMs);
-    this.midLeft.configPeakOutputForward(.15, timeoutMs);
-    this.midRight.configPeakOutputForward(.15, timeoutMs);
-    this.midLeft.configPeakOutputReverse(-.15, timeoutMs);
-    this.midRight.configPeakOutputReverse(-.15, timeoutMs);
+    this.midLeft.configPeakOutputForward(1, timeoutMs);
+    this.midRight.configPeakOutputForward(1, timeoutMs);
+    this.midLeft.configPeakOutputReverse(-1, timeoutMs);
+    this.midRight.configPeakOutputReverse(-1, timeoutMs);
 
     this.midLeft.config_kP(slotIdx, 0, timeoutMs);
     this.midLeft.config_kI(slotIdx, 0, timeoutMs);
@@ -98,7 +98,7 @@ public class Drive implements IGoatSystem {
     this.midRight.config_kP(slotIdx, 0, timeoutMs);
     this.midRight.config_kI(slotIdx, 0, timeoutMs);
     this.midRight.config_kD(slotIdx, 0, timeoutMs);
-    this.midRight.config_kF(slotIdx, 0, timeoutMs);*/
+    this.midRight.config_kF(slotIdx, 0, timeoutMs);
 
   }
 
