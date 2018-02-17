@@ -1,5 +1,6 @@
 package com.digitalgoats.auto;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.digitalgoats.systems.SystemsGroup;
 
 /**
@@ -29,7 +30,8 @@ public class DriveForwardAuto extends Auto {
        * Otherwise drive straight
        */
       case 1: {
-        if (this.getDeltaTime() > 3000) { this.nextStep(); }
+        if (this.getDeltaTime() > 3000) { /*this.nextStep();*/ }
+        this.systemsGroup.drive.setControlMode(ControlMode.Velocity);
         this.systemsGroup.drive.setDriveSpeed(10, 10);
         break;
       }
