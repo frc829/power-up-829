@@ -35,7 +35,7 @@ public class DriveForwardAuto extends Auto {
       case 1: {
         if (this.getDeltaTime() > 3000) { this.nextStep(); }
         this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
-        this.systemsGroup.drive.setDriveSpeed(1, 1);
+        this.systemsGroup.drive.driveStraight(10);
         break;
       }
 

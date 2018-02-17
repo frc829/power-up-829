@@ -145,6 +145,15 @@ public class Arm implements IGoatSystem {
     this.updateTransmission();
   }
 
+  public boolean canGoDirection(double speed) {
+    if (this.stageOne.getSensorCollection().isFwdLimitSwitchClosed() && speed > 0) {
+      return false;
+    } else if (this.stageOne.getSensorCollection().isRevLimitSwitchClosed() && speed < 0) {
+      return false;
+    }
+    return true;
+  }
+
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
@@ -169,7 +178,7 @@ public class Arm implements IGoatSystem {
     }
 
     if (this.getTargetSwitch() == 99) {
-      if (Math.abs(operator.getAxisValue(LogitechAxis.LEFT_Y)) > .1) {
+      if (Math.abs(operator.getAxisValue(LogitechAxis.LEFT_Y)) > .1 && canGoDirection(-operator.getAxisValue(LogitechAxis.LEFT_Y))) {
         this.setStageSpeed(-operator.getAxisValue(LogitechAxis.LEFT_Y));
       } else {
         this.setStageSpeed(0.0625);
