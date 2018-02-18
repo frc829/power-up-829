@@ -9,7 +9,7 @@ import com.digitalgoats.systems.SystemsGroup;
  */
 public class DriveForwardAuto extends Auto {
 
-  private final double COUNTS_PER_INCH = 60;
+  private final double COUNTS_PER_INCH = 45.28301886792453;
 
   public DriveForwardAuto(SystemsGroup systemsGroup) {
     super("Drive Forward", systemsGroup);
@@ -35,14 +35,13 @@ public class DriveForwardAuto extends Auto {
        * Otherwise drive straight
        */
       case 1: {
-        //if (this.systemsGroup.navx.getDisplacementX() <= 12 * UNITS_PER_INCH) { this.nextStep(); }
         this.systemsGroup.drive.setControlMode(ControlMode.MotionMagic);
-        this.systemsGroup.drive.setDriveSpeed(12 * COUNTS_PER_INCH, 12 * COUNTS_PER_INCH);
+        this.systemsGroup.drive.setDriveSpeed(9 * 12 * COUNTS_PER_INCH, 9 * 12 * COUNTS_PER_INCH);
         this.nextStep();
         break;
       }
 
-      // Stop drive motors
+      // Turn
       case 2: {
         break;
       }

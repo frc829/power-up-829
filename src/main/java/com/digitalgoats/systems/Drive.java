@@ -130,6 +130,14 @@ public class Drive implements IGoatSystem {
     return this.backRight.getSelectedSensorVelocity(slotIdx);
   }
 
+  public double getLeftPosition() {
+    return this.backLeft.getSelectedSensorPosition(slotIdx);
+  }
+
+  public double getRightPosition() {
+    return this.backRight.getSelectedSensorPosition(slotIdx);
+  }
+
   // endregion
 
   // region Update Methods
