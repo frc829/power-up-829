@@ -69,13 +69,12 @@ public class Drive implements IGoatSystem {
     );
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
     this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
+    this.midLeft.setInverted(true);
     this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
+    this.midRight.setInverted(true);
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
-    this.midLeft.setInverted(true);
-    this.frontLeft.setInverted(true);
-    this.backLeft.setInverted(true);
 
     this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.backLeft.setSensorPhase(true);
@@ -227,8 +226,8 @@ public class Drive implements IGoatSystem {
 
     this.setControlMode(ControlMode.PercentOutput);
     this.setDriveSpeed(
-        -driver.getAxisValue(LogitechAxis.RIGHT_Y),
-        -driver.getAxisValue(LogitechAxis.LEFT_Y)
+        driver.getAxisValue(LogitechAxis.RIGHT_Y),
+        driver.getAxisValue(LogitechAxis.LEFT_Y)
     );
     if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
       if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {

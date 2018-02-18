@@ -98,12 +98,12 @@ public class Manipulator implements IGoatSystem {
         this.pivotSolenoid2.set(Value.kReverse);
         break;
       }
-      case PIVOT_LOW: {
+      case PIVOT_UP: {
         this.pivotSolenoid.set(Value.kForward);
         this.pivotSolenoid2.set(Value.kForward);
         break;
       }
-      case PIVOT_UP: {
+      case PIVOT_LOW: {
         this.pivotSolenoid.set(Value.kReverse);
         this.pivotSolenoid2.set(Value.kReverse);
         break;
