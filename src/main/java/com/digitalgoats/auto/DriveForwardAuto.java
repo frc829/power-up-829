@@ -9,7 +9,7 @@ import com.digitalgoats.systems.SystemsGroup;
  */
 public class DriveForwardAuto extends Auto {
 
-  private final int FEET_MULTIPLIER = 0;
+  private final double UNITS_PER_INCH = -0.0209446359187999;
 
   public DriveForwardAuto(SystemsGroup systemsGroup) {
     super("Drive Forward", systemsGroup);
@@ -18,12 +18,13 @@ public class DriveForwardAuto extends Auto {
   @Override
   public void execute() {
 
-    System.out.println(this.systemsGroup.navx.getDisplacementX());
+    System.out.println(12 * UNITS_PER_INCH);
     switch (this.getStep()) {
 
       // Set starting time and go to next step
       case 0: {
         this.setStartTime(System.currentTimeMillis());
+        this.systemsGroup.navx.resetDisplacement();
         this.systemsGroup.drive.setTransmissionStatus(false);
         this.nextStep();
         break;
@@ -34,16 +35,15 @@ public class DriveForwardAuto extends Auto {
        * Otherwise drive straight
        */
       case 1: {
-        if (this.getDeltaTime() > 1000) { this.nextStep(); }
+        if (this.systemsGroup.navx.getDisplacementX() <= 12 * UNITS_PER_INCH) { this.nextStep(); }
         this.systemsGroup.drive.setControlMode(ControlMode.Velocity);
-        this.systemsGroup.drive.setDriveSpeed(1440, 1440);
+        this.systemsGroup.drive.setDriveSpeed(360, 360);
         break;
       }
 
       // Stop drive motors
       case 2: {
         this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
-        this.systemsGroup.drive.setTransmissionStatus(true);
         this.getSystemsGroup().drive.setDriveSpeed(0, 0);
         break;
       }

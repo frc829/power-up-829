@@ -1,5 +1,6 @@
 package com.digitalgoats.systems;
 
+import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -23,10 +24,7 @@ public class Drive implements IGoatSystem {
 
   private final long transmissionDelay = 500;
   private final int slotIdx = 0;
-  private final int pidIdx = 0;
   private final int timeoutMs = 10;
-  private final double leftMaxGain = 15;
-  private final double leftPeriod = 0.0882352941176471;
 
   // endregion
 
@@ -69,12 +67,13 @@ public class Drive implements IGoatSystem {
     );
     this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
     this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
-    this.midLeft.setInverted(true);
     this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
     this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
-    this.midRight.setInverted(true);
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
+    this.midLeft.setInverted(true);
+    this.frontLeft.setInverted(true);
+    this.backLeft.setInverted(true);
 
     this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.backLeft.setSensorPhase(true);
@@ -242,6 +241,7 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
+    System.out.println(this.getRightVelocity());
     SmartDashboard.putString("Drive: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
     SmartDashboard.putNumber("Drive: Left Velocity", this.getLeftVelocity());
     SmartDashboard.putNumber("Drive: Right Velocity", this.getRightVelocity());
