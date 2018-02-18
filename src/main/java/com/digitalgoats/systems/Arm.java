@@ -24,23 +24,19 @@ public class Arm implements IGoatSystem {
   // region Constants
 
   private final int BOTTOM_POSITION = 0, SWITCH_POSITION = 1, SCALE_POSITION = 2, TOP_POSITION = 3;
-  private final long transmissionDelay = 500;
 
   // endregion
 
   // region Fields
 
-  private boolean transmissionStatus;
   private double stageSpeed;
   private int lastSwitch, targetSwitch;
-  private long transmissionTime;
 
   // endregion
 
   // region Objects
 
   private DigitalInput scalePosition, switchPosition;
-  private Solenoid transmission;
   private TalonSRX stageOne, stageTwo;
 
   // endregion
@@ -57,10 +53,6 @@ public class Arm implements IGoatSystem {
     // Setup Objects
     scalePosition = new DigitalInput(SystemMap.MAN_SCALE_POSITION.getValue());
     switchPosition = new DigitalInput(SystemMap.MAN_SWITCH_POSITION.getValue());
-    this.transmission = new Solenoid(
-        SystemMap.ARM_PCM.getValue(),
-        SystemMap.ARM_TRANS_FORWARD.getValue()
-    );
     this.stageOne = new TalonSRX(SystemMap.ARM_STAGEONE_TALON.getValue());
     this.stageOne.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
     this.stageTwo = new TalonSRX(SystemMap.ARM_STAGETWO_TALON.getValue());
@@ -82,22 +74,9 @@ public class Arm implements IGoatSystem {
 
   }
 
-  public void updateTransmission() {
-    this.transmission.set(this.getTransmissionStatus());
-  }
-
   // endregion
 
   // region Getters & Setters
-
-  /** Get transmission status */
-  public boolean getTransmissionStatus() {
-    return this.transmissionStatus;
-  }
-  /** Set transmission status */
-  public void setTransmissionStatus(boolean transmissionStatus) {
-    this.transmissionStatus = transmissionStatus;
-  }
 
   public int getLastSwitch() {
     return this.lastSwitch;
@@ -122,15 +101,6 @@ public class Arm implements IGoatSystem {
     this.stageSpeed = stageSpeed;
   }
 
-  /** Get transmission time */
-  public long getTransmissionTime() {
-    return this.transmissionTime;
-  }
-  /** Set transmission time */
-  public void setTransmissionTime(long transmissionTime) {
-    this.transmissionTime = transmissionTime;
-  }
-
   // endregion
 
   // region Overridden Methods
@@ -138,13 +108,11 @@ public class Arm implements IGoatSystem {
   @Override
   public void disabledUpdateSystem() {
     this.updateStages();
-    this.updateTransmission();
   }
 
   @Override
   public void autonomousUpdateSystem() {
     this.updateStages();
-    this.updateTransmission();
   }
 
   public boolean canGoDirection(double speed) {
@@ -166,13 +134,6 @@ public class Arm implements IGoatSystem {
                     this.scalePosition.get() ? SCALE_POSITION : this.getLastSwitch()
     );
 
-    if (operator.getButtonValue(LogitechButton.JOY_LEFT_BUT)) {
-      if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
-        this.setTransmissionTime(System.currentTimeMillis());
-        this.setTransmissionStatus(!this.getTransmissionStatus());
-      }
-    }
-
     if (this.getTargetSwitch() == this.getLastSwitch() || this.getTargetSwitch() == 99) {
       this.setTargetSwitch(99);
     } else {
@@ -188,13 +149,11 @@ public class Arm implements IGoatSystem {
     }
 
     this.updateStages();
-    this.updateTransmission();
 
   }
 
   @Override
   public void updateSmartDashboard() {
-    SmartDashboard.putString("Arm: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
     SmartDashboard.putNumber("Arm: Stage Speed", this.getStageSpeed());
     SmartDashboard.putNumber("Arm: Stage Velocity", this.stageOne.getSelectedSensorVelocity(0));
   }
