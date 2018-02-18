@@ -25,8 +25,8 @@ public class Drive implements IGoatSystem {
   private final int slotIdx = 0;
   private final int pidIdx = 0;
   private final int timeoutMs = 10;
-  private final double rightKu = 500;
-  private final double rightTu = 2;
+  private final double leftMaxGain = 15;
+  private final double leftPeriod = 0.0882352941176471;
 
   // endregion
 
@@ -77,34 +77,42 @@ public class Drive implements IGoatSystem {
     this.frontLeft.setInverted(true);
     this.backLeft.setInverted(true);
 
-    this.midLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
-    this.midLeft.setSensorPhase(true);
-    this.midRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
-    this.midRight.setSensorPhase(true);
+    this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    this.backLeft.setSensorPhase(true);
+    this.backRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    this.backRight.setSensorPhase(true);
 
-    this.midLeft.configNominalOutputForward(0, timeoutMs);
-    this.midRight.configNominalOutputForward(0, timeoutMs);
-    this.midLeft.configNominalOutputReverse(0, timeoutMs);
-    this.midRight.configNominalOutputReverse(0, timeoutMs);
-    this.midLeft.configPeakOutputForward(1, timeoutMs);
-    this.midRight.configPeakOutputForward(1, timeoutMs);
-    this.midLeft.configPeakOutputReverse(-1, timeoutMs);
-    this.midRight.configPeakOutputReverse(-1, timeoutMs);
+    this.backLeft.configNominalOutputForward(0, timeoutMs);
+    this.backRight.configNominalOutputForward(0, timeoutMs);
+    this.backLeft.configNominalOutputReverse(0, timeoutMs);
+    this.backRight.configNominalOutputReverse(0, timeoutMs);
+    this.backLeft.configPeakOutputForward(1, timeoutMs);
+    this.backRight.configPeakOutputForward(1, timeoutMs);
+    this.backLeft.configPeakOutputReverse(-1, timeoutMs);
+    this.backRight.configPeakOutputReverse(-1, timeoutMs);
 
-    this.midLeft.config_kP(slotIdx, 0, timeoutMs);
-    this.midLeft.config_kI(slotIdx, 0, timeoutMs);
-    this.midLeft.config_kD(slotIdx, 0, timeoutMs);
-    this.midLeft.config_kF(slotIdx, 0, timeoutMs);
-    this.midRight.config_kP(slotIdx, 0, timeoutMs);
-    this.midRight.config_kI(slotIdx, 0, timeoutMs);
-    this.midRight.config_kD(slotIdx, 0, timeoutMs);
-    this.midRight.config_kF(slotIdx, 0, timeoutMs);
+    this.backLeft.config_kP(slotIdx, 1.5, timeoutMs);
+    this.backLeft.config_kI(slotIdx, 0, timeoutMs);
+    this.backLeft.config_kD(slotIdx, 0, timeoutMs);
+    this.backLeft.config_kF(slotIdx, 8, timeoutMs);
+    this.backRight.config_kP(slotIdx, 1.5, timeoutMs);
+    this.backRight.config_kI(slotIdx, 0, timeoutMs);
+    this.backRight.config_kD(slotIdx, 0, timeoutMs);
+    this.backRight.config_kF(slotIdx, 8, timeoutMs);
 
   }
 
   // endregion
 
   // region Autonomous Methods
+
+  public double getLeftVelocity() {
+    return this.backLeft.getSelectedSensorVelocity(slotIdx);
+  }
+
+  public double getRightVelocity() {
+    return this.backRight.getSelectedSensorVelocity(slotIdx);
+  }
 
   // endregion
 
@@ -114,12 +122,12 @@ public class Drive implements IGoatSystem {
    * Update drive based on internal left and right speed variables
    */
   public void updateDrive() {
-    this.midLeft.set(this.getControlMode(), this.getLeftSpeed());
-    this.frontLeft.follow(this.midLeft);
-    this.backLeft.follow(this.midLeft);
-    this.midRight.set(this.getControlMode(), this.getRightSpeed());
-    this.frontRight.follow(this.midRight);
-    this.backRight.follow(this.midRight);
+    this.backLeft.set(this.getControlMode(), this.getLeftSpeed());
+    this.frontLeft.follow(this.backLeft);
+    this.midLeft.follow(this.backLeft);
+    this.backRight.set(this.getControlMode(), this.getRightSpeed());
+    this.frontRight.follow(this.backRight);
+    this.midRight.follow(this.backRight);
   }
 
   /**
@@ -159,13 +167,6 @@ public class Drive implements IGoatSystem {
   }
   public void setControlMode(ControlMode controlMode) {
     this.controlMode = controlMode;
-  }
-
-  public double getLeftVelocity() {
-    return this.midLeft.getSelectedSensorVelocity(slotIdx);
-  }
-  public double getRightVelocity() {
-    return this.midRight.getSelectedSensorVelocity(slotIdx);
   }
 
   /** Get left speed */
@@ -243,10 +244,8 @@ public class Drive implements IGoatSystem {
   @Override
   public void updateSmartDashboard() {
     SmartDashboard.putString("Drive: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
-    SmartDashboard.putNumber("Drive: Left Velocity", this.midLeft.getSelectedSensorVelocity(slotIdx));
-    SmartDashboard.putNumber("Drive: Right Velocity", this.midRight.getSelectedSensorVelocity(slotIdx));
-    SmartDashboard.putNumber("Drive: Left Position", this.midLeft.getSelectedSensorPosition(slotIdx));
-    SmartDashboard.putNumber("Drive: Right Position", this.midRight.getSelectedSensorPosition(slotIdx));
+    SmartDashboard.putNumber("Drive: Left Velocity", this.getLeftVelocity());
+    SmartDashboard.putNumber("Drive: Right Velocity", this.getRightVelocity());
     SmartDashboard.putNumber("NavX: Current Angle", this.navx.getAngle());
     SmartDashboard.putNumber("NavX: X Displacement", this.navx.getDisplacementX());
     SmartDashboard.putNumber("NavX: Y Displacement", this.navx.getDisplacementY());

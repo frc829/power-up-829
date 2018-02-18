@@ -18,12 +18,13 @@ public class DriveForwardAuto extends Auto {
   @Override
   public void execute() {
 
+    System.out.println(this.systemsGroup.navx.getDisplacementX());
     switch (this.getStep()) {
 
       // Set starting time and go to next step
       case 0: {
         this.setStartTime(System.currentTimeMillis());
-        this.systemsGroup.drive.setTransmissionStatus(true);
+        this.systemsGroup.drive.setTransmissionStatus(false);
         this.nextStep();
         break;
       }
@@ -33,14 +34,16 @@ public class DriveForwardAuto extends Auto {
        * Otherwise drive straight
        */
       case 1: {
-        if (this.getDeltaTime() > 3000) { this.nextStep(); }
-        this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
-        this.systemsGroup.drive.setDriveSpeed(1, 1);
+        if (this.getDeltaTime() > 1000) { this.nextStep(); }
+        this.systemsGroup.drive.setControlMode(ControlMode.Velocity);
+        this.systemsGroup.drive.setDriveSpeed(1440, 1440);
         break;
       }
 
       // Stop drive motors
       case 2: {
+        this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
+        this.systemsGroup.drive.setTransmissionStatus(true);
         this.getSystemsGroup().drive.setDriveSpeed(0, 0);
         break;
       }

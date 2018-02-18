@@ -1,6 +1,7 @@
 package com.digitalgoats.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
@@ -61,6 +62,7 @@ public class Arm implements IGoatSystem {
         SystemMap.ARM_TRANS_FORWARD.getValue()
     );
     this.stageOne = new TalonSRX(SystemMap.ARM_STAGEONE_TALON.getValue());
+    this.stageOne.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
     this.stageTwo = new TalonSRX(SystemMap.ARM_STAGETWO_TALON.getValue());
 
   }
@@ -185,6 +187,7 @@ public class Arm implements IGoatSystem {
   public void updateSmartDashboard() {
     SmartDashboard.putString("Arm: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
     SmartDashboard.putNumber("Arm: Stage Speed", this.getStageSpeed());
+    SmartDashboard.putNumber("Arm: Stage Velocity", this.stageOne.getSelectedSensorVelocity(0));
   }
 
   @Override
