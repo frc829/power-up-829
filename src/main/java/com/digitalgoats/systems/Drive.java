@@ -4,6 +4,7 @@ import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechAxis;
@@ -76,9 +77,16 @@ public class Drive implements IGoatSystem {
     this.backLeft.setInverted(true);
 
     this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    this.backLeft.setSelectedSensorPosition(0, slotIdx, timeoutMs);
     this.backLeft.setSensorPhase(true);
     this.backRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
+    this.backRight.setSelectedSensorPosition(0, slotIdx, timeoutMs);
     this.backRight.setSensorPhase(true);
+
+    this.backLeft.selectProfileSlot(slotIdx, timeoutMs);
+    this.backRight.selectProfileSlot(slotIdx, timeoutMs);
+    this.backLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, timeoutMs);
+    this.backRight.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, timeoutMs);
 
     this.backLeft.configNominalOutputForward(0, timeoutMs);
     this.backRight.configNominalOutputForward(0, timeoutMs);
@@ -98,11 +106,21 @@ public class Drive implements IGoatSystem {
     this.backRight.config_kD(slotIdx, 0, timeoutMs);
     this.backRight.config_kF(slotIdx, 8, timeoutMs);
 
+    this.backLeft.configMotionCruiseVelocity(15000, timeoutMs);
+    this.backRight.configMotionCruiseVelocity(15000, timeoutMs);
+    this.backLeft.configMotionAcceleration(6000, timeoutMs);
+    this.backRight.configMotionAcceleration(6000, timeoutMs);
+
   }
 
   // endregion
 
   // region Autonomous Methods
+
+  public void resetSensors() {
+    this.backLeft.setSelectedSensorPosition(0, slotIdx, timeoutMs);
+    this.backRight.setSelectedSensorPosition(0, slotIdx, timeoutMs);
+  }
 
   public double getLeftVelocity() {
     return this.backLeft.getSelectedSensorVelocity(slotIdx);
