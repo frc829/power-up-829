@@ -20,4 +20,13 @@ public class SystemMap {
 
   }
 
+  public static class Elevator {
+
+    // region Talon SRX
+    public static final int STAGE_ONE = 16;
+    public static final int STAGE_TWO = 17;
+    // endregion
+
+  }
+
 }

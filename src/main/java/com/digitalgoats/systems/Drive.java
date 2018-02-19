@@ -19,7 +19,7 @@ public class Drive implements ISystem {
   public static final double METER_VALUE = FOOT_VALUE * 0.3048;
 
   public static final int PIDF_SLOT = 0;
-  public static final int PIDF_TIMEOUT = 0;
+  public static final int PIDF_TIMEOUT = 10;
   public static final double PIDF_P = 1.5;
   public static final double PIDF_I = 0;
   public static final double PIDF_D = 0;
@@ -61,7 +61,6 @@ public class Drive implements ISystem {
   public void setupPIDF() {
 
     this.backRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PIDF_SLOT, PIDF_TIMEOUT);
-    this.backRight.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
     this.backRight.setSensorPhase(true);
     this.backRight.configNominalOutputForward(0, PIDF_TIMEOUT);
     this.backRight.configNominalOutputReverse(0, PIDF_TIMEOUT);
@@ -75,7 +74,6 @@ public class Drive implements ISystem {
     this.backRight.configMotionAcceleration((int)((2.5 * METER_VALUE)/10), PIDF_TIMEOUT);
 
     this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PIDF_SLOT, PIDF_TIMEOUT);
-    this.backLeft.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
     this.backLeft.setSensorPhase(true);
     this.backLeft.configNominalOutputForward(0, PIDF_TIMEOUT);
     this.backLeft.configNominalOutputReverse(0, PIDF_TIMEOUT);
@@ -88,9 +86,18 @@ public class Drive implements ISystem {
     this.backLeft.configMotionCruiseVelocity((int)((5 * METER_VALUE)/10), PIDF_TIMEOUT);
     this.backLeft.configMotionAcceleration((int)((2.5 * METER_VALUE)/10), PIDF_TIMEOUT);
 
+    this.resetEncoders();
+
   }
 
   // region Autonomous Functions
+
+  public void resetEncoders() {
+
+    this.backRight.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
+    this.backLeft.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
+
+  }
 
   public double getRightVelocity() {
     return this.backRight.getSelectedSensorVelocity(PIDF_SLOT);
