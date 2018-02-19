@@ -1,187 +1,170 @@
 package com.digitalgoats.systems;
 
-import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.digitalgoats.framework.ISystem;
+import com.digitalgoats.robot.SystemMap;
 import com.digitalgoats.util.LogitechF310;
 import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/**
- * The system for controlling the Drive
- * @author Blake
- */
-public class Drive implements IGoatSystem {
+public class Drive implements ISystem {
 
-  // region Constants
+  public static final long TRANS_DELAY = 500;
 
-  private final long transmissionDelay = 500;
-  private final int slotIdx = 0;
-  private final int timeoutMs = 10;
+  public static final double INCH_VALUE = 45.28301886792453;
+  public static final double FOOT_VALUE = INCH_VALUE * 12;
+  public static final double METER_VALUE = FOOT_VALUE * 0.3048;
 
-  // endregion
-
-  // region Fields
+  public static final int PIDF_SLOT = 0;
+  public static final int PIDF_TIMEOUT = 0;
+  public static final double PIDF_P = 1.5;
+  public static final double PIDF_I = 0;
+  public static final double PIDF_D = 0;
+  public static final double PIDF_F = 8;
 
   private boolean transmissionStatus;
   private ControlMode controlMode;
-  private double leftSpeed, rightSpeed;
-  private double startAngle;
+  private double rightSetPoint, leftSetPoint;
   private long transmissionTime;
 
-  // endregion
-
-  // region Objects
-
-  private AHRS navx;
   private Solenoid transmission;
-  private TalonSRX frontLeft, midLeft, backLeft, frontRight, midRight, backRight;
+  private TalonSRX frontRight, midRight, backRight;
+  private TalonSRX frontLeft, midLeft, backLeft;
 
-  // endregion
+  public Drive() {
 
-  // region Constructor
-
-  /** Create instance of Drive System */
-  public Drive(AHRS navx) {
-
-    // Setup fields
     this.setTransmissionStatus(false);
-    this.setControlMode(ControlMode.PercentOutput);
-    this.setLeftSpeed(0);
-    this.setRightSpeed(0);
-    this.setStartAngle(navx.getAngle());
-    this.setTransmissionTime(0);
+    this.setControlMode(ControlMode.Disabled);
+    this.setRightSetPoint(0);
+    this.setLeftSetPoint(0);
+    this.setTransmissionTime(System.currentTimeMillis());
 
-    // Setup Objects
-    this.navx = navx;
-    this.transmission = new Solenoid(
-        SystemMap.DRIVE_PCM.getValue(),
-        SystemMap.DRIVE_TRANS_FORWARD.getValue()
-    );
-    this.frontLeft = new TalonSRX(SystemMap.DRIVE_FRONTLEFT_TALON.getValue());
-    this.midLeft = new TalonSRX(SystemMap.DRIVE_MIDLEFT_TALON.getValue());
-    this.backLeft = new TalonSRX(SystemMap.DRIVE_BACKLEFT_TALON.getValue());
-    this.frontRight = new TalonSRX(SystemMap.DRIVE_FRONTRIGHT_TALON.getValue());
-    this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
-    this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
-    this.midLeft.setInverted(true);
-    this.frontLeft.setInverted(true);
+    this.transmission = new Solenoid(SystemMap.Drive.TRANS_PCM, SystemMap.Drive.TRANS_PORT);
+
+    this.frontRight = new TalonSRX(SystemMap.Drive.FRONT_RIGHT);
+    this.midRight = new TalonSRX(SystemMap.Drive.MID_RIGHT);
+    this.backRight = new TalonSRX(SystemMap.Drive.BACK_RIGHT);
+    this.midRight.setInverted(true);
+
+    this.frontLeft = new TalonSRX(SystemMap.Drive.FRONT_LEFT);
+    this.midLeft = new TalonSRX(SystemMap.Drive.MID_LEFT);
+    this.backLeft = new TalonSRX(SystemMap.Drive.BACK_LEFT);
     this.backLeft.setInverted(true);
 
-    this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
-    this.backLeft.setSelectedSensorPosition(0, slotIdx, timeoutMs);
-    this.backLeft.setSensorPhase(true);
-    this.backRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
-    this.backRight.setSelectedSensorPosition(0, slotIdx, timeoutMs);
-    this.backRight.setSensorPhase(true);
-
-    this.backLeft.selectProfileSlot(slotIdx, timeoutMs);
-    this.backRight.selectProfileSlot(slotIdx, timeoutMs);
-    this.backLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, timeoutMs);
-    this.backRight.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, timeoutMs);
-
-    this.backLeft.configNominalOutputForward(0, timeoutMs);
-    this.backRight.configNominalOutputForward(0, timeoutMs);
-    this.backLeft.configNominalOutputReverse(0, timeoutMs);
-    this.backRight.configNominalOutputReverse(0, timeoutMs);
-    this.backLeft.configPeakOutputForward(1, timeoutMs);
-    this.backRight.configPeakOutputForward(1, timeoutMs);
-    this.backLeft.configPeakOutputReverse(-1, timeoutMs);
-    this.backRight.configPeakOutputReverse(-1, timeoutMs);
-
-    this.backLeft.config_kP(slotIdx, 1.5, timeoutMs);
-    this.backLeft.config_kI(slotIdx, 0, timeoutMs);
-    this.backLeft.config_kD(slotIdx, 0, timeoutMs);
-    this.backLeft.config_kF(slotIdx, 8, timeoutMs);
-    this.backRight.config_kP(slotIdx, 1.5, timeoutMs);
-    this.backRight.config_kI(slotIdx, 0, timeoutMs);
-    this.backRight.config_kD(slotIdx, 0, timeoutMs);
-    this.backRight.config_kF(slotIdx, 8, timeoutMs);
-
-    this.backLeft.configMotionCruiseVelocity(15000, timeoutMs);
-    this.backRight.configMotionCruiseVelocity(15000, timeoutMs);
-    this.backLeft.configMotionAcceleration(6000, timeoutMs);
-    this.backRight.configMotionAcceleration(6000, timeoutMs);
+    this.setupPIDF();
 
   }
 
-  // endregion
+  public void setupPIDF() {
 
-  // region Autonomous Methods
+    this.backRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PIDF_SLOT, PIDF_TIMEOUT);
+    this.backRight.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
+    this.backRight.setSensorPhase(true);
+    this.backRight.configNominalOutputForward(0, PIDF_TIMEOUT);
+    this.backRight.configNominalOutputReverse(0, PIDF_TIMEOUT);
+    this.backRight.configPeakOutputForward(1, PIDF_TIMEOUT);
+    this.backRight.configPeakOutputReverse(-1, PIDF_TIMEOUT);
+    this.backRight.config_kP(PIDF_SLOT, PIDF_P, PIDF_TIMEOUT);
+    this.backRight.config_kI(PIDF_SLOT, PIDF_I, PIDF_TIMEOUT);
+    this.backRight.config_kD(PIDF_SLOT, PIDF_D, PIDF_TIMEOUT);
+    this.backRight.config_kF(PIDF_SLOT, PIDF_F, PIDF_TIMEOUT);
+    this.backRight.configMotionCruiseVelocity((int)((5 * METER_VALUE)/10), PIDF_TIMEOUT);
+    this.backRight.configMotionAcceleration((int)((2.5 * METER_VALUE)/10), PIDF_TIMEOUT);
 
-  public void resetSensors() {
-    this.backLeft.setSelectedSensorPosition(0, slotIdx, timeoutMs);
-    this.backRight.setSelectedSensorPosition(0, slotIdx, timeoutMs);
+    this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PIDF_SLOT, PIDF_TIMEOUT);
+    this.backLeft.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
+    this.backLeft.setSensorPhase(true);
+    this.backLeft.configNominalOutputForward(0, PIDF_TIMEOUT);
+    this.backLeft.configNominalOutputReverse(0, PIDF_TIMEOUT);
+    this.backLeft.configPeakOutputForward(1, PIDF_TIMEOUT);
+    this.backLeft.configPeakOutputReverse(-1, PIDF_TIMEOUT);
+    this.backLeft.config_kP(PIDF_SLOT, PIDF_P, PIDF_TIMEOUT);
+    this.backLeft.config_kI(PIDF_SLOT, PIDF_I, PIDF_TIMEOUT);
+    this.backLeft.config_kD(PIDF_SLOT, PIDF_D, PIDF_TIMEOUT);
+    this.backLeft.config_kF(PIDF_SLOT, PIDF_F, PIDF_TIMEOUT);
+    this.backLeft.configMotionCruiseVelocity((int)((5 * METER_VALUE)/10), PIDF_TIMEOUT);
+    this.backLeft.configMotionAcceleration((int)((2.5 * METER_VALUE)/10), PIDF_TIMEOUT);
+
+  }
+
+  // region Autonomous Functions
+
+  public double getRightVelocity() {
+    return this.backRight.getSelectedSensorVelocity(PIDF_SLOT);
   }
 
   public double getLeftVelocity() {
-    return this.backLeft.getSelectedSensorVelocity(slotIdx);
-  }
-
-  public double getRightVelocity() {
-    return this.backRight.getSelectedSensorVelocity(slotIdx);
-  }
-
-  public double getLeftPosition() {
-    return this.backLeft.getSelectedSensorPosition(slotIdx);
+    return this.backLeft.getSelectedSensorVelocity(PIDF_SLOT);
   }
 
   public double getRightPosition() {
-    return this.backRight.getSelectedSensorPosition(slotIdx);
+    return this.backRight.getSelectedSensorPosition(PIDF_SLOT);
+  }
+
+  public double getLeftPosition() {
+    return this.backLeft.getSelectedSensorPosition(PIDF_SLOT);
   }
 
   // endregion
 
-  // region Update Methods
+  // region System Functions
 
-  /**
-   * Update drive based on internal left and right speed variables
-   */
-  public void updateDrive() {
-    this.backLeft.set(this.getControlMode(), this.getLeftSpeed());
-    this.frontLeft.follow(this.backLeft);
-    this.midLeft.follow(this.backLeft);
-    this.backRight.set(this.getControlMode(), this.getRightSpeed());
+  @Override
+  public void systemUpdate() {
+
+    this.transmission.set(this.isTransmissionStatus());
+
+    this.backRight.set(this.getControlMode(), this.getRightSetPoint());
     this.frontRight.follow(this.backRight);
     this.midRight.follow(this.backRight);
+
+    this.backLeft.set(this.getControlMode(), this.getLeftSetPoint());
+    this.frontLeft.follow(this.backLeft);
+    this.midLeft.follow(this.backLeft);
+
   }
 
-  /**
-   * Update transmission based on internal transmission status
-   */
-  public void updateTransmission() {
-    this.transmission.set(this.getTransmissionStatus());
+  @Override
+  public void execTeleop(LogitechF310 driver, LogitechF310 operator) {
+
+    this.setControlMode(ControlMode.PercentOutput);
+    this.setRightSetPoint(-driver.getAxisValue(LogitechAxis.RIGHT_Y));
+    this.setLeftSetPoint(-driver.getAxisValue(LogitechAxis.LEFT_Y));
+
+    if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
+      if (System.currentTimeMillis() - this.getTransmissionTime() >= TRANS_DELAY) {
+        this.setTransmissionTime(System.currentTimeMillis());
+        this.setTransmissionStatus(!this.isTransmissionStatus());
+      }
+    }
+
+  }
+
+  @Override
+  public void execDisabled() {
+
+    this.setControlMode(ControlMode.Disabled);
+    this.setRightSetPoint(0);
+    this.setLeftSetPoint(0);
+
+  }
+
+  @Override
+  public String getSystemName() {
+    return "Drive";
   }
 
   // endregion
 
   // region Getters & Setters
 
-  /**
-   * Set speed for drive sides
-   * @param left
-   *  The percent output for left side of drive
-   * @param right
-   *  The percent output for right side of drive
-   */
-  public void setDriveSpeed(double left, double right) {
-    this.setLeftSpeed(left);
-    this.setRightSpeed(right);
-  }
-
-  /** Get transmission status */
-  public boolean getTransmissionStatus() {
+  public boolean isTransmissionStatus() {
     return this.transmissionStatus;
   }
-  /** Set transmission status */
+
   public void setTransmissionStatus(boolean transmissionStatus) {
     this.transmissionStatus = transmissionStatus;
   }
@@ -189,97 +172,33 @@ public class Drive implements IGoatSystem {
   public ControlMode getControlMode() {
     return this.controlMode;
   }
+
   public void setControlMode(ControlMode controlMode) {
     this.controlMode = controlMode;
   }
 
-  /** Get left speed */
-  public double getLeftSpeed() {
-    return this.leftSpeed;
-  }
-  /** Set left speed */
-  public void setLeftSpeed(double leftSpeed) {
-    this.leftSpeed = leftSpeed;
+  public double getRightSetPoint() {
+    return this.rightSetPoint;
   }
 
-  /** Get right speed */
-  public double getRightSpeed() {
-    return this.rightSpeed;
-  }
-  /** Set right speed */
-  public void setRightSpeed(double rightSpeed) {
-    this.rightSpeed = rightSpeed;
+  public void setRightSetPoint(double rightSetPoint) {
+    this.rightSetPoint = rightSetPoint;
   }
 
-  /** Get start angle */
-  public double getStartAngle() {
-    return this.startAngle;
-  }
-  /** Set start angle */
-  public void setStartAngle(double startAngle) {
-    this.startAngle = startAngle;
+  public double getLeftSetPoint() {
+    return this.leftSetPoint;
   }
 
-  /** Get transmission time */
+  public void setLeftSetPoint(double leftSetPoint) {
+    this.leftSetPoint = leftSetPoint;
+  }
+
   public long getTransmissionTime() {
     return this.transmissionTime;
   }
-  /** Set transmission time */
+
   public void setTransmissionTime(long transmissionTime) {
     this.transmissionTime = transmissionTime;
-  }
-
-  // endregion
-
-  // region Overridden Methods
-
-  @Override
-  public void disabledUpdateSystem() {
-    this.setDriveSpeed(0, 0);
-    this.updateDrive();
-    this.updateTransmission();
-  }
-
-  @Override
-  public void autonomousUpdateSystem() {
-    this.updateDrive();
-    this.updateTransmission();
-  }
-
-  @Override
-  public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
-
-    this.setControlMode(ControlMode.PercentOutput);
-    this.setDriveSpeed(
-        driver.getAxisValue(LogitechAxis.RIGHT_Y),
-        driver.getAxisValue(LogitechAxis.LEFT_Y)
-    );
-    if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
-      if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {
-        this.setTransmissionTime(System.currentTimeMillis());
-        this.setTransmissionStatus(!this.getTransmissionStatus());
-      }
-    }
-    this.updateTransmission();
-    this.updateDrive();
-
-  }
-
-  @Override
-  public void updateSmartDashboard() {
-    System.out.println(this.getRightVelocity());
-    SmartDashboard.putString("Drive: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
-    SmartDashboard.putNumber("Drive: Left Velocity", this.getLeftVelocity());
-    SmartDashboard.putNumber("Drive: Right Velocity", this.getRightVelocity());
-    SmartDashboard.putNumber("NavX: Current Angle", this.navx.getAngle());
-    SmartDashboard.putNumber("NavX: X Displacement", this.navx.getDisplacementX());
-    SmartDashboard.putNumber("NavX: Y Displacement", this.navx.getDisplacementY());
-    SmartDashboard.putNumber("NavX: Z Displacement", this.navx.getDisplacementZ());
-  }
-
-  @Override
-  public String getSystemName() {
-    return "Drive";
   }
 
   // endregion
