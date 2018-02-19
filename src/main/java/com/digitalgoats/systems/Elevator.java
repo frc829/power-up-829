@@ -24,48 +24,49 @@ public class Elevator implements ISystem {
   private ControlMode controlMode;
   private double setpoint;
 
-  private TalonSRX stageOne, stageTwo;
+  private TalonSRX stageMaster, stageSlave;
 
   public Elevator() {
 
     this.setControlMode(ControlMode.Disabled);
     this.setSetpoint(0);
 
-    this.stageOne = new TalonSRX(SystemMap.Elevator.STAGE_ONE);
-    this.stageTwo = new TalonSRX(SystemMap.Elevator.STAGE_TWO);
+    this.stageMaster = new TalonSRX(SystemMap.Elevator.STAGE_MASTER);
+    this.stageSlave = new TalonSRX(SystemMap.Elevator.STAGE_SLAVE);
 
   }
 
   public void setupPIDF() {
 
-    this.stageOne.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PIDF_SLOT, PIDF_TIMEOUT);
+    this.stageMaster
+        .configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PIDF_SLOT, PIDF_TIMEOUT);
     this.resetEncoders();
-    this.stageOne.setSensorPhase(true);
-    this.stageOne.configNominalOutputForward(0, PIDF_TIMEOUT);
-    this.stageOne.configNominalOutputReverse(0, PIDF_TIMEOUT);
-    this.stageOne.configPeakOutputForward(1, PIDF_TIMEOUT);
-    this.stageOne.configPeakOutputReverse(-1, PIDF_TIMEOUT);
-    this.stageOne.config_kP(PIDF_SLOT, PIDF_P, PIDF_TIMEOUT);
-    this.stageOne.config_kI(PIDF_SLOT, PIDF_I, PIDF_TIMEOUT);
-    this.stageOne.config_kD(PIDF_SLOT, PIDF_D, PIDF_TIMEOUT);
-    this.stageOne.config_kF(PIDF_SLOT, PIDF_F, PIDF_TIMEOUT);
-    this.stageOne.configMotionCruiseVelocity((int)((5 * METER_VALUE)/10), PIDF_TIMEOUT);
-    this.stageOne.configMotionAcceleration((int)((2.5 * METER_VALUE)/10), PIDF_TIMEOUT);
+    this.stageMaster.setSensorPhase(true);
+    this.stageMaster.configNominalOutputForward(0, PIDF_TIMEOUT);
+    this.stageMaster.configNominalOutputReverse(0, PIDF_TIMEOUT);
+    this.stageMaster.configPeakOutputForward(1, PIDF_TIMEOUT);
+    this.stageMaster.configPeakOutputReverse(-1, PIDF_TIMEOUT);
+    this.stageMaster.config_kP(PIDF_SLOT, PIDF_P, PIDF_TIMEOUT);
+    this.stageMaster.config_kI(PIDF_SLOT, PIDF_I, PIDF_TIMEOUT);
+    this.stageMaster.config_kD(PIDF_SLOT, PIDF_D, PIDF_TIMEOUT);
+    this.stageMaster.config_kF(PIDF_SLOT, PIDF_F, PIDF_TIMEOUT);
+    this.stageMaster.configMotionCruiseVelocity((int)((5 * METER_VALUE)/10), PIDF_TIMEOUT);
+    this.stageMaster.configMotionAcceleration((int)((2.5 * METER_VALUE)/10), PIDF_TIMEOUT);
 
   }
 
   // region Autonomous Functions
 
   public void resetEncoders() {
-    this.stageOne.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
+    this.stageMaster.setSelectedSensorPosition(0, PIDF_SLOT, PIDF_TIMEOUT);
   }
 
   public double getVelocity() {
-    return this.stageOne.getSelectedSensorVelocity(PIDF_SLOT);
+    return this.stageMaster.getSelectedSensorVelocity(PIDF_SLOT);
   }
 
   public double getPosition() {
-    return this.stageOne.getSelectedSensorPosition(PIDF_SLOT);
+    return this.stageMaster.getSelectedSensorPosition(PIDF_SLOT);
   }
 
   // endregion
@@ -75,18 +76,22 @@ public class Elevator implements ISystem {
   @Override
   public void systemUpdate() {
 
-    this.stageOne.set(this.getControlMode(), this.getSetpoint());
-    this.stageTwo.follow(this.stageOne);
+    this.stageMaster.set(this.getControlMode(), this.getSetpoint());
+    this.stageSlave.follow(this.stageMaster);
 
   }
 
   @Override
   public void execTeleop(LogitechF310 driver, LogitechF310 operator) {
 
-    if (Math.abs(-operator.getAxisValue(LogitechAxis.LEFT_Y)) >= .04) {
-      if ((this.stageOne.getSensorCollection().isFwdLimitSwitchClosed() && -operator.getAxisValue(LogitechAxis.LEFT_Y) > 0) ||
-          (this.stageOne.getSensorCollection().isRevLimitSwitchClosed()) && -operator.getAxisValue(LogitechAxis.LEFT_Y) < 0) {
-      }
+    double speed = -operator.getAxisValue(LogitechAxis.LEFT_Y);
+    if ((speed < 0 && !this.stageMaster.getSensorCollection().isRevLimitSwitchClosed()) || (speed > 0 && !this.stageMaster
+        .getSensorCollection().isFwdLimitSwitchClosed())) {
+      this.setControlMode(ControlMode.PercentOutput);
+      this.setSetpoint(speed);
+    } else {
+      this.setControlMode(ControlMode.PercentOutput);
+      this.setSetpoint(.0625);
     }
 
   }

@@ -23,8 +23,27 @@ public class SystemMap {
   public static class Elevator {
 
     // region Talon SRX
-    public static final int STAGE_ONE = 16;
-    public static final int STAGE_TWO = 17;
+    public static final int STAGE_MASTER = 16;
+    public static final int STAGE_SLAVE = 17;
+    // endregion
+
+  }
+
+  public static class Manipulator {
+
+    // region Talon SRX
+    public static final int WHEEL_MASTER = 18;
+    public static final int WHEEL_SLAVE = 19;
+    // endregion
+
+    // region QuadSolenoid
+    public static final int PIVOT_PCM = 2;
+    public static final int GRIP_FORWARD = 0;
+    public static final int GRIP_REVERSE = 1;
+    public static final int PIVOT_A_F = 2;
+    public static final int PIVOT_A_R = 3;
+    public static final int PIVOT_B_F = 4;
+    public static final int PIVOT_B_R = 5;
     // endregion
 
   }

@@ -9,14 +9,18 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 public class Robot extends IterativeRobot {
 
   public LogitechF310 driver, operator;
+
   public SystemGroup systems;
+  public AutoGroup autos;
 
   @Override
   public void robotInit() {
 
     driver = new LogitechF310(0);
     operator = new LogitechF310(1);
+
     systems = new SystemGroup();
+    autos = new AutoGroup(systems);
 
   }
 
@@ -34,6 +38,7 @@ public class Robot extends IterativeRobot {
 
   @Override
   public void autonomousPeriodic() {
+    autos.execute();
     systems.systemsUpdate();
   }
 

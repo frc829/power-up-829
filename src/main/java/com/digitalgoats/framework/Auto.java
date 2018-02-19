@@ -26,11 +26,11 @@ public abstract class Auto {
 
   // region General Auto Methods
 
-  public void addToChooser(SendableChooser<String> chooser, boolean isDefault) {
+  public void addToChooser(SendableChooser<Auto> chooser, boolean isDefault) {
     if (isDefault) {
-      chooser.addDefault(this.getName(), this.getName());
+      chooser.addDefault(this.getName(), this);
     } else {
-      chooser.addObject(this.getName(), this.getName());
+      chooser.addObject(this.getName(), this);
     }
   }
 
