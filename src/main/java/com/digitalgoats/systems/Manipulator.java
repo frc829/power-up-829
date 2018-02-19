@@ -2,157 +2,240 @@ package com.digitalgoats.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.digitalgoats.framework.ISystem;
-import com.digitalgoats.objects.QuadSolenoid;
-import com.digitalgoats.objects.QuadSolenoid.Value;
-import com.digitalgoats.robot.SystemMap;
 import com.digitalgoats.util.LogitechF310;
+import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Manipulator implements ISystem {
+/**
+ * The system for controlling the Manipulator
+ * @author Blake
+ */
+public class Manipulator implements IGoatSystem {
 
-  public static final long GRIP_DELAY = 500;
-  public static final long PIVOT_DELAY = 500;
+  // region Constants
 
-  private double setpoint;
-  private DoubleSolenoid.Value gripPositon;
-  private long gripTime, pivotTime;
-  private QuadSolenoid.Value pivotPosition;
-
-  private DoubleSolenoid grip;
-  private TalonSRX wheelMaster, wheelSlave;
-  private QuadSolenoid pivot;
-
-  public Manipulator() {
-
-    this.setSetpoint(0);
-    this.setGripPositon(DoubleSolenoid.Value.kReverse);
-    this.setGripTime(System.currentTimeMillis());
-    this.setPivotTime(System.currentTimeMillis());
-    this.setPivotPosition(Value.ForwardForward);
-
-    this.grip = new DoubleSolenoid(
-        SystemMap.Manipulator.PIVOT_PCM,
-        SystemMap.Manipulator.GRIP_FORWARD, SystemMap.Manipulator.GRIP_REVERSE
-    );
-    this.wheelMaster = new TalonSRX(SystemMap.Manipulator.WHEEL_MASTER);
-    this.wheelSlave = new TalonSRX(SystemMap.Manipulator.WHEEL_SLAVE);
-    this.pivot = new QuadSolenoid(
-        SystemMap.Manipulator.PIVOT_PCM,
-        SystemMap.Manipulator.PIVOT_A_F, SystemMap.Manipulator.PIVOT_A_R,
-        SystemMap.Manipulator.PIVOT_B_F, SystemMap.Manipulator.PIVOT_B_R
-    );
-
-  }
-
-  // region Autonomous Functions
+  private final double stallSpeed = 0;
+  private final long gripSolenoidDelay = 250, pivotSolenoidDelay = 250;
+  public static final int PIVOT_MID = 0, PIVOT_UP = 1, PIVOT_LOW = 2;
 
   // endregion
 
-  // region System Functions
+  // region Fields
 
-  @Override
-  public void systemUpdate() {
+  private boolean gripSolenoidStatus;
+  private int pivotSolenoidStatus;
+  private double wheelSpeed;
+  private long gripSolenoidTime, pivotSolenoidTime;
 
-    this.grip.set(this.getGripPositon());
+  // endregion
 
-    this.wheelMaster.set(ControlMode.PercentOutput, this.getSetpoint());
-    this.wheelSlave.follow(this.wheelMaster);
+  // region Objects
 
-    this.pivot.set(this.getPivotPosition());
+  private DoubleSolenoid gripSolenoid, pivotSolenoid, pivotSolenoid2;
+  private TalonSRX leftWheel, rightWheel;
+
+  // endregion
+
+  // region Constructor
+
+  /** Create instance of Manipulator */
+  public Manipulator() {
+
+    // Setup Fields
+    this.setGripSolenoidStatus(false);
+    this.setPivotSolenoidStatus(PIVOT_UP);
+    this.setWheelSpeed(stallSpeed);
+    this.setGripSolenoidTime(0);
+
+    // Setup Objects
+    gripSolenoid = new DoubleSolenoid(
+        SystemMap.MAN_PCM.getValue(),
+        SystemMap.MAN_GRIPSOLENOID_FORWARD.getValue(),
+        SystemMap.MAN_GRIPSOLENOID_BACKWARD.getValue()
+    );
+    pivotSolenoid = new DoubleSolenoid(
+        SystemMap.MAN_PCM.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_FORWARD.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_BACKWARD.getValue()
+    );
+    pivotSolenoid2 = new DoubleSolenoid(
+        SystemMap.MAN_PCM.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_2_FORWARD.getValue(),
+        SystemMap.MAN_PIVOTSOLENOID_2_BACKWARD.getValue()
+    );
+    leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
+    rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
+    rightWheel.setInverted(true);
 
   }
 
-  @Override
-  public void execTeleop(LogitechF310 driver, LogitechF310 operator) {
+  // endregion
 
-    if (operator.getButtonValue(LogitechButton.BUT_A)) {
-      this.setSetpoint(1);
-    } else if (operator.getButtonValue(LogitechButton.BUT_B)) {
-      this.setSetpoint(-1);
-    } else {
-      this.setSetpoint(0);
-    }
+  // region Autonomous Methods
 
-    if (operator.getButtonValue(LogitechButton.BUT_X)) {
-      if (System.currentTimeMillis() - this.getGripTime() >= GRIP_DELAY) {
-        this.setGripTime(System.currentTimeMillis());
-        this.setGripPositon(
-            this.getGripPositon() == DoubleSolenoid.Value.kForward ?
-                DoubleSolenoid.Value.kReverse : DoubleSolenoid.Value.kForward
-        );
+  // endregion
+
+  // region Update Methods
+
+  /**
+   * Update grip solenoid based on status
+   */
+  public void updateGripSolenoid() {
+    this.gripSolenoid.set(this.getGripSolenoidStatus() ? Value.kForward : Value.kReverse);
+  }
+
+  /**
+   * Update pivot solenoid based on status
+   */
+  public void updatePivotSolenoid() {
+    switch (this.getPivotSolenoidStatus()) {
+      case PIVOT_MID: {
+        this.pivotSolenoid.set(Value.kForward);
+        this.pivotSolenoid2.set(Value.kReverse);
+        break;
+      }
+      case PIVOT_UP: {
+        this.pivotSolenoid.set(Value.kForward);
+        this.pivotSolenoid2.set(Value.kForward);
+        break;
+      }
+      case PIVOT_LOW: {
+        this.pivotSolenoid.set(Value.kReverse);
+        this.pivotSolenoid2.set(Value.kReverse);
+        break;
       }
     }
-
-    if (operator.getButtonValue(LogitechButton.BUT_BACK) && operator.getButtonValue(LogitechButton.BUT_START)) {
-      this.setPivotPosition(Value.ForwardForward);
-    }
-
-    if (operator.getButtonValue(LogitechButton.BUT_Y)) {
-      if (System.currentTimeMillis() - this.getPivotTime() >= PIVOT_DELAY) {
-        this.setPivotTime(System.currentTimeMillis());
-        this.setPivotPosition(
-            this.getPivotPosition() == Value.ForwardReverse ?
-                Value.ReverseReverse : Value.ForwardReverse
-        );
-      }
-    }
-
   }
 
-  @Override
-  public void execDisabled() {
-    this.setSetpoint(0);
-  }
-
-  @Override
-  public String getSystemName() {
-    return "Manipulator";
+  /**
+   * Update wheels based on speed
+   */
+  public void updateWheel() {
+    this.leftWheel.set(ControlMode.PercentOutput, this.getWheelSpeed());
+    this.rightWheel.follow(this.leftWheel);
   }
 
   // endregion
 
   // region Getters & Setters
 
-  public double getSetpoint() {
-    return this.setpoint;
+  /** Get grip solenoid status */
+  public boolean getGripSolenoidStatus() {
+    return this.gripSolenoidStatus;
+  }
+  /** Set grip solenoid status */
+  public void setGripSolenoidStatus(boolean gripSolenoidStatus) {
+    this.gripSolenoidStatus = gripSolenoidStatus;
   }
 
-  public void setSetpoint(double setpoint) {
-    this.setpoint = setpoint;
+  /** Get pivot solenoid status */
+  public int getPivotSolenoidStatus() {
+    return this.pivotSolenoidStatus;
+  }
+  /** Set pivot solenoid status */
+  public void setPivotSolenoidStatus(int pivotSolenoidStatus) {
+    this.pivotSolenoidStatus = pivotSolenoidStatus;
   }
 
-  public DoubleSolenoid.Value getGripPositon() {
-    return gripPositon;
+  /** Get wheel speed */
+  public double getWheelSpeed() {
+    return this.wheelSpeed;
+  }
+  /** Set wheel speed */
+  public void setWheelSpeed(double wheelSpeed) {
+    this.wheelSpeed = wheelSpeed;
   }
 
-  public void setGripPositon(DoubleSolenoid.Value gripPositon) {
-    this.gripPositon = gripPositon;
+  /** Get grip solenoid time */
+  public long getGripSolenoidTime() {
+    return this.gripSolenoidTime;
+  }
+  /** Set grip solenoid time */
+  public void setGripSolenoidTime(long gripSolenoidTime) {
+    this.gripSolenoidTime = gripSolenoidTime;
   }
 
-  public long getGripTime() {
-    return gripTime;
+  /** Get pivot solenoid time */
+  public long getPivotSolenoidTime() {
+    return this.pivotSolenoidTime;
+  }
+  /** Set pivot solenoid time */
+  public void setPivotSolenoidTime(long pivotSolenoidTime) {
+    this.pivotSolenoidTime = pivotSolenoidTime;
   }
 
-  public void setGripTime(long gripTime) {
-    this.gripTime = gripTime;
+  // endregion
+
+  // region Overridden
+
+  @Override
+  public void disabledUpdateSystem() {
+    this.updateWheel();
+    this.updateGripSolenoid();
+    this.updatePivotSolenoid();
   }
 
-  public long getPivotTime() {
-    return this.pivotTime;
+  @Override
+  public void autonomousUpdateSystem() {
+    this.updateWheel();
+    this.updateGripSolenoid();
+    this.updatePivotSolenoid();
   }
 
-  public void setPivotTime(long pivotTime) {
-    this.pivotTime = pivotTime;
+  @Override
+  public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
+
+    if (operator.getButtonValue(LogitechButton.BUT_A)) {
+      this.setWheelSpeed(1);
+    } else if (operator.getButtonValue(LogitechButton.BUT_B)) {
+      this.setWheelSpeed(-1);
+    } else {
+      this.setWheelSpeed(stallSpeed);
+    }
+
+    if (operator.getButtonValue(LogitechButton.BUT_X)) {
+      if (System.currentTimeMillis() - this.gripSolenoidTime >= gripSolenoidDelay) {
+        this.setGripSolenoidTime(System.currentTimeMillis());
+        this.setGripSolenoidStatus(!this.getGripSolenoidStatus());
+      }
+    }
+
+    if (operator.getButtonValue(LogitechButton.BUT_Y)) {
+      if (System.currentTimeMillis() - this.pivotSolenoidTime >= pivotSolenoidDelay) {
+        this.setPivotSolenoidTime(System.currentTimeMillis());
+        if (this.getPivotSolenoidStatus() == PIVOT_MID) {
+          this.setPivotSolenoidStatus(PIVOT_LOW);
+        } else {
+          this.setPivotSolenoidStatus(PIVOT_MID);
+        }
+      }
+    }
+
+    if (operator.getButtonValue(LogitechButton.BUT_START) && operator.getButtonValue(LogitechButton.BUT_BACK)) {
+      this.setPivotSolenoidStatus(PIVOT_UP);
+    }
+
+    this.updateWheel();
+    this.updateGripSolenoid();
+    this.updatePivotSolenoid();
+
   }
 
-  public QuadSolenoid.Value getPivotPosition() {
-    return this.pivotPosition;
+  @Override
+  public void updateSmartDashboard() {
+    SmartDashboard.putString("Manipulator: Grip Status", this.getGripSolenoidStatus() ?
+        "Gripping" : "Not Gripping");
+    SmartDashboard.putNumber("Manipulator: Pivot Status", this.getPivotSolenoidStatus());
+    SmartDashboard.putNumber("Manipulator: Wheel Speed", this.getWheelSpeed());
   }
 
-  public void setPivotPosition(QuadSolenoid.Value pivotPosition) {
-    this.pivotPosition = pivotPosition;
+  @Override
+  public String getSystemName() {
+    return "Manipulator";
   }
 
   // endregion
