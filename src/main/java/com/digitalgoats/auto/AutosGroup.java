@@ -25,6 +25,7 @@ public class AutosGroup {
     selectedKey = null;
 
     autosGroup.add(new MiddleAuto(systemsGroup));
+    autosGroup.add(new RightAuto(systemsGroup));
 
   }
 
