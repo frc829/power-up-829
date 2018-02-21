@@ -76,17 +76,17 @@ public class Drive implements IGoatSystem {
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
 
     // WHAT SHOULD BE REVERSED ON THE PRACTICE BOT
-    this.frontRight.setInverted(true);
+    /*this.frontRight.setInverted(true);
     this.midRight.setInverted(false);
     this.backRight.setInverted(true);
     this.frontLeft.setInverted(true);
     this.backLeft.setInverted(true);
-    this.midLeft.setInverted(true);
+    this.midLeft.setInverted(true);*/
 
     // WHAT SOULD BE REVERSED ON THE COMPETITIUON BOT
-    //    this.midLeft.setInverted(true);
-    //    this.frontLeft.setInverted(true);
-    //    this.backLeft.setInverted(true);
+    this.midLeft.setInverted(true);
+    this.frontLeft.setInverted(true);
+    this.backLeft.setInverted(true);
 
     this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.backLeft.setSelectedSensorPosition(0, slotIdx, timeoutMs);
@@ -136,16 +136,12 @@ public class Drive implements IGoatSystem {
   }
 
   public boolean atTarget() {
-    if (Math.abs(this.getLeftSpeed() - this.getLeftPosition()) <= 50) {
-      if (Math.abs(this.getRightSpeed() - this.getRightPosition()) <= 50) {
+    if (Math.abs(this.getLeftSpeed() - this.getLeftPosition()) <= 25) {
+      if (Math.abs(this.getRightSpeed() - this.getRightPosition()) <= 25) {
         return true;
       }
     }
     return false;
-  }
-
-  public boolean atAngle(double angle) {
-    return Math.abs(angle - this.navx.getAngle()) <= 7.5;
   }
 
   public double getLeftPosition() {
@@ -293,7 +289,6 @@ public class Drive implements IGoatSystem {
 
   @Override
   public void updateSmartDashboard() {
-    System.out.println(this.getRightVelocity());
     SmartDashboard.putString("Drive: Transmission Status", this.getTransmissionStatus() ? "High" : "Low");
     SmartDashboard.putNumber("Left Pos", this.backLeft.getSelectedSensorPosition(slotIdx));
     SmartDashboard.putNumber("Right Pos", this.backRight.getSelectedSensorPosition(slotIdx));

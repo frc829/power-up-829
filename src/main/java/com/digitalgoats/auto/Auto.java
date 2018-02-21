@@ -15,6 +15,12 @@ public abstract class Auto {
   public String name;
   public SystemsGroup systemsGroup;
 
+
+  public boolean atAngle(double angle) {
+    double deltaAngle = Math.abs(angle) - Math.abs(this.systemsGroup.navx.getAngle());
+    return Math.abs(deltaAngle) <= 6.25;
+  }
+
   /**
    * Create an auto
    * @param name

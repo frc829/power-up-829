@@ -2,6 +2,7 @@ package com.digitalgoats.auto;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.digitalgoats.systems.Drive;
+import com.digitalgoats.systems.Manipulator;
 import com.digitalgoats.systems.SystemsGroup;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
@@ -22,9 +23,9 @@ public class RightAuto extends Auto {
     if (switchSide == OwnedSide.RIGHT && scaleSide == switchSide) {
       this.bothOn();
     } else if (switchSide == OwnedSide.RIGHT) {
-      this.switchOn();
+      this.oneSide(15, 500);
     } else if (scaleSide == OwnedSide.RIGHT) {
-      this.scaleOn();
+      this.oneSide(31, 2500);
     } else {
       this.noneOn();
     }
@@ -40,20 +41,63 @@ public class RightAuto extends Auto {
     }
   }
 
-  public void switchOn() {
+  public void oneSide(double driveDist, long liftTime) {
     switch (this.getStep()) {
 
       case 0: {
+        this.systemsGroup.manipulator.setPivotSolenoidStatus(Manipulator.PIVOT_UP);
+        this.systemsGroup.manipulator.setGripSolenoidStatus(true);
+        this.systemsGroup.drive.setControlMode(ControlMode.MotionMagic);
+        this.systemsGroup.drive.setDriveSpeed(driveDist * Drive.FOOT_COUNT, driveDist * Drive.FOOT_COUNT);
+        this.nextStep();
         break;
       }
 
-    }
-  }
+      case 1: {
+        if (this.systemsGroup.drive.atTarget()) {
+          this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
+          this.systemsGroup.drive.setDriveSpeed(0, 0);
+          this.nextStep();
+        }
+        this.systemsGroup.manipulator.setPivotSolenoidStatus(Manipulator.PIVOT_MID);
+        break;
+      }
 
-  public void scaleOn() {
-    switch (this.getStep()) {
+      case 2: {
+        if (this.atAngle(-90)) {
+          this.systemsGroup.drive.setDriveSpeed(0, 0);
+          this.setStartTime(System.currentTimeMillis());
+          this.nextStep();
+        } else {
+          if (this.systemsGroup.navx.getAngle() < -90) {
+            this.systemsGroup.drive.setDriveSpeed(.25, -.25);
+          } else if (this.systemsGroup.navx.getAngle() > -90) {
+            this.systemsGroup.drive.setDriveSpeed(-.25, .25);
+          }
+        }
+        break;
+      }
 
-      case 0: {
+      case 3: {
+        if (this.getDeltaTime() >= liftTime) {
+          this.systemsGroup.manipulator.setPivotSolenoidStatus(Manipulator.PIVOT_MID);
+          this.systemsGroup.arm.setStageSpeed(.0625);
+          this.setStartTime(System.currentTimeMillis());
+          this.nextStep();
+        } else {
+          this.systemsGroup.arm.setStageSpeed(.75);
+        }
+        break;
+      }
+
+      case 4: {
+        if (this.getDeltaTime() >= 1000) {
+          this.systemsGroup.manipulator.setWheelSpeed(0);
+          this.nextStep();
+        } else {
+          this.systemsGroup.manipulator.setGripSolenoidStatus(false);
+          this.systemsGroup.manipulator.setWheelSpeed(.5);
+        }
         break;
       }
 
