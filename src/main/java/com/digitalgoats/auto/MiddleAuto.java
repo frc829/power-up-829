@@ -50,16 +50,16 @@ public class MiddleAuto extends Auto {
 
       case 2: {
         if (this.atAngle(angle)) {
-          this.systemsGroup.drive.setDriveSpeed(0, 0);
-          this.systemsGroup.drive.setControlMode(ControlMode.MotionMagic);
-          this.systemsGroup.drive.setLeftSpeed(distanceB);
-          this.systemsGroup.drive.setRightSpeed(distanceB);
-          this.systemsGroup.drive.resetSensors();
-          this.nextStep();
+            this.systemsGroup.drive.setDriveSpeed(0, 0);
+            this.systemsGroup.drive.setControlMode(ControlMode.MotionMagic);
+            this.systemsGroup.drive.setLeftSpeed(distanceB);
+            this.systemsGroup.drive.setRightSpeed(distanceB);
+            this.systemsGroup.drive.resetSensors();
+            this.nextStep();
         } else if (this.systemsGroup.navx.getAngle() < angle) {
-          this.systemsGroup.drive.setDriveSpeed(.25, -.25);
+            this.systemsGroup.drive.setDriveSpeed(.25, -.25);
         } else {
-          this.systemsGroup.drive.setDriveSpeed(-.25, .25);
+            this.systemsGroup.drive.setDriveSpeed(-.25, .25);
         }
         break;
       }
@@ -74,13 +74,13 @@ public class MiddleAuto extends Auto {
 
       case 4: {
         if (this.atAngle(0)) {
-          this.setStartTime(System.currentTimeMillis());
-          this.systemsGroup.drive.setDriveSpeed(0, 0);
-          this.nextStep();
+            this.setStartTime(System.currentTimeMillis());
+            this.systemsGroup.drive.setDriveSpeed(0, 0);
+            this.nextStep();
         } else if (this.systemsGroup.navx.getAngle() < 0) {
-          this.systemsGroup.drive.setDriveSpeed(.25, -.25);
+            this.systemsGroup.drive.setDriveSpeed(.25, -.25);
         } else {
-          this.systemsGroup.drive.setDriveSpeed(-.25, .25);
+            this.systemsGroup.drive.setDriveSpeed(-.25, .25);
         }
         break;
       }

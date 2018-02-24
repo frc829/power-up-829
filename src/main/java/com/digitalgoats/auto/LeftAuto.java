@@ -8,23 +8,23 @@ import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
 import openrio.powerup.MatchData.OwnedSide;
 
-public class RightAuto extends Auto {
+public class LeftAuto extends Auto {
 
   private OwnedSide switchSide, scaleSide;
 
-  public RightAuto(SystemsGroup systemsGroup) {
-    super("Right Auto", systemsGroup);
+  public LeftAuto(SystemsGroup systemsGroup) {
+    super("Left Auto", systemsGroup);
   }
 
   @Override
   public void execute() {
     switchSide = MatchData.getOwnedSide(GameFeature.SWITCH_NEAR);
     scaleSide = MatchData.getOwnedSide(GameFeature.SCALE);
-    if (switchSide == OwnedSide.RIGHT && scaleSide == switchSide) {
+    if (switchSide == OwnedSide.LEFT && scaleSide == switchSide) {
       this.bothOn();
-    } else if (switchSide == OwnedSide.RIGHT) {
-      this.oneSide(14, 500);
-    } else if (scaleSide == OwnedSide.RIGHT) {
+    } else if (switchSide == OwnedSide.LEFT) {
+      this.oneSide(10, 500);
+    } else if (scaleSide == OwnedSide.LEFT) {
       this.oneSide(30, 2500);
     } else {
       this.noneOn();
@@ -64,12 +64,12 @@ public class RightAuto extends Auto {
       }
 
       case 2: {
-        if (this.atAngle(-90)) {
+        if (this.atAngle(90)) {
           this.systemsGroup.drive.setDriveSpeed(0, 0);
           this.setStartTime(System.currentTimeMillis());
           this.nextStep();
         } else {
-          if (this.systemsGroup.navx.getAngle() < -90) {
+          if (this.systemsGroup.navx.getAngle() < 90) {
             this.systemsGroup.drive.setDriveSpeed(.25, -.25);
           } else if (this.systemsGroup.navx.getAngle() > -90) {
             this.systemsGroup.drive.setDriveSpeed(-.25, .25);

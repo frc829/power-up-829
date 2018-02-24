@@ -3,11 +3,8 @@ package com.digitalgoats.systems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.util.LogitechF310;
-import com.digitalgoats.util.LogitechF310.LogitechAxis;
 import com.digitalgoats.util.LogitechF310.LogitechButton;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -35,7 +32,7 @@ public class Manipulator implements IGoatSystem {
 
   // region Objects
 
-  private DoubleSolenoid gripSolenoid, pivotSolenoid, pivotSolenoid2;
+  private Solenoid gripSolenoid, pivotSolenoid, pivotSolenoid2;
   private TalonSRX leftWheel, rightWheel;
 
   // endregion
@@ -46,26 +43,23 @@ public class Manipulator implements IGoatSystem {
   public Manipulator() {
 
     // Setup Fields
-    this.setGripSolenoidStatus(false);
+    this.setGripSolenoidStatus(true);
     this.setPivotSolenoidStatus(PIVOT_UP);
     this.setWheelSpeed(stallSpeed);
     this.setGripSolenoidTime(0);
 
     // Setup Objects
-    gripSolenoid = new DoubleSolenoid(
+    gripSolenoid = new Solenoid(
         SystemMap.MAN_PCM.getValue(),
-        SystemMap.MAN_GRIPSOLENOID_FORWARD.getValue(),
-        SystemMap.MAN_GRIPSOLENOID_BACKWARD.getValue()
+        SystemMap.MAN_GRIPSOLENOID_FORWARD.getValue()
     );
-    pivotSolenoid = new DoubleSolenoid(
+    pivotSolenoid = new Solenoid(
         SystemMap.MAN_PCM.getValue(),
-        SystemMap.MAN_PIVOTSOLENOID_FORWARD.getValue(),
-        SystemMap.MAN_PIVOTSOLENOID_BACKWARD.getValue()
+        SystemMap.MAN_PIVOTSOLENOID.getValue()
     );
-    pivotSolenoid2 = new DoubleSolenoid(
+    pivotSolenoid2 = new Solenoid(
         SystemMap.MAN_PCM.getValue(),
-        SystemMap.MAN_PIVOTSOLENOID_2_FORWARD.getValue(),
-        SystemMap.MAN_PIVOTSOLENOID_2_BACKWARD.getValue()
+        SystemMap.MAN_PIVOTSOLENOID_2.getValue()
     );
     leftWheel = new TalonSRX(SystemMap.MAN_LEFT_TALON.getValue());
     rightWheel = new TalonSRX(SystemMap.MAN_RIGHT_TALON.getValue());
@@ -85,7 +79,7 @@ public class Manipulator implements IGoatSystem {
    * Update grip solenoid based on status
    */
   public void updateGripSolenoid() {
-    this.gripSolenoid.set(this.getGripSolenoidStatus() ? Value.kForward : Value.kReverse);
+    this.gripSolenoid.set(!this.getGripSolenoidStatus());
   }
 
   /**
@@ -94,18 +88,18 @@ public class Manipulator implements IGoatSystem {
   public void updatePivotSolenoid() {
     switch (this.getPivotSolenoidStatus()) {
       case PIVOT_MID: {
-        this.pivotSolenoid.set(Value.kForward);
-        this.pivotSolenoid2.set(Value.kReverse);
-        break;
-      }
-      case PIVOT_UP: {
-        this.pivotSolenoid.set(Value.kForward);
-        this.pivotSolenoid2.set(Value.kForward);
+        this.pivotSolenoid.set(true);
+        this.pivotSolenoid2.set(false);
         break;
       }
       case PIVOT_LOW: {
-        this.pivotSolenoid.set(Value.kReverse);
-        this.pivotSolenoid2.set(Value.kReverse);
+        this.pivotSolenoid.set(true);
+        this.pivotSolenoid2.set(true);
+        break;
+      }
+      case PIVOT_UP: {
+        this.pivotSolenoid.set(false);
+        this.pivotSolenoid2.set(false);
         break;
       }
     }
@@ -189,9 +183,9 @@ public class Manipulator implements IGoatSystem {
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
-    if (operator.getButtonValue(LogitechButton.BUT_A)) {
+    if (operator.getButtonValue(LogitechButton.BUT_B)) {
       this.setWheelSpeed(1);
-    } else if (operator.getButtonValue(LogitechButton.BUT_B)) {
+    } else if (operator.getButtonValue(LogitechButton.BUT_A)) {
       this.setWheelSpeed(-1);
     } else {
       this.setWheelSpeed(stallSpeed);

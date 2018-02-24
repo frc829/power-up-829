@@ -39,12 +39,12 @@ public class Arm implements IGoatSystem {
   private DigitalInput scalePosition, switchPosition;
   private TalonSRX stageOne, stageTwo;
 
+
   // endregion
 
   // region Constructor
 
   public Arm() {
-
     // Setup Fields
     this.setStageSpeed(0);
     this.setLastSwitch(BOTTOM_POSITION);
@@ -136,8 +136,9 @@ public class Arm implements IGoatSystem {
 
     if (this.getTargetSwitch() == 99) {
       if (Math.abs(operator.getAxisValue(LogitechAxis.LEFT_Y)) > .1 && canGoDirection(-operator.getAxisValue(LogitechAxis.LEFT_Y))) {
-        this.setStageSpeed(-operator.getAxisValue(LogitechAxis.LEFT_Y) * .5);
-      } else {
+        this.setStageSpeed(.65*Math.pow(-operator.getAxisValue(LogitechAxis.LEFT_Y), 3)+((1-.65)*-operator.getAxisValue(LogitechAxis.LEFT_Y)));
+        }
+        else {
         this.setStageSpeed(0.0625);
       }
     }

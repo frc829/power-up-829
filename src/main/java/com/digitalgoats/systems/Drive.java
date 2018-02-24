@@ -23,8 +23,16 @@ public class Drive implements IGoatSystem {
 
   // region Constants
 
-  public static final double INCH_COUNT = 32.35955056179775/*46.02857142857143*/;
-  public static final double FOOT_COUNT = INCH_COUNT * 12;
+  // PRACTICE BOT
+  public static final double INCH_COUNT_L = 1934/43.5;
+  public static final double INCH_COUNT_R = 1919/43.5;
+
+  // COMPETITION BOT
+  //public static final double INCH_COUNT = 32.35955056179775;
+
+  public static final double FOOT_COUNT_L = INCH_COUNT_L * 12;
+  public static final double FOOT_COUNT_R = INCH_COUNT_R * 12;
+  public static final double FOOT_COUNT = (FOOT_COUNT_L + FOOT_COUNT_R)/2;
   private final long transmissionDelay = 500;
   private final int slotIdx = 0;
   private final int timeoutMs = 10;
@@ -75,26 +83,24 @@ public class Drive implements IGoatSystem {
     this.midRight = new TalonSRX(SystemMap.DRIVE_MIDRIGHT_TALON.getValue());
     this.backRight = new TalonSRX(SystemMap.DRIVE_BACKRIGHT_TALON.getValue());
 
-    // WHAT SHOULD BE REVERSED ON THE PRACTICE BOT
-    /*this.frontRight.setInverted(true);
+    // PRACTICE BOT CONFIG
+    this.frontRight.setInverted(true);
     this.midRight.setInverted(false);
     this.backRight.setInverted(true);
     this.frontLeft.setInverted(true);
     this.backLeft.setInverted(true);
-    this.midLeft.setInverted(true);*/
-
-    // WHAT SOULD BE REVERSED ON THE COMPETITIUON BOT
     this.midLeft.setInverted(true);
+    this.backRight.setSensorPhase(true);
+
+    // COMPETITION BOT CONFIG
+    /*this.midLeft.setInverted(true);
     this.frontLeft.setInverted(true);
     this.backLeft.setInverted(true);
-
     this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
     this.backLeft.setSelectedSensorPosition(0, slotIdx, timeoutMs);
     this.backLeft.setSensorPhase(true);
     this.backRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, slotIdx, timeoutMs);
-    this.backRight.setSelectedSensorPosition(0, slotIdx, timeoutMs);
-    // DISABLE ONLY FOR PRACTICE BOT
-    //this.backRight.setSensorPhase(true);
+    this.backRight.setSelectedSensorPosition(0, slotIdx, timeoutMs);*/
 
     this.backLeft.selectProfileSlot(slotIdx, timeoutMs);
     this.backRight.selectProfileSlot(slotIdx, timeoutMs);
@@ -110,11 +116,11 @@ public class Drive implements IGoatSystem {
     this.backLeft.configPeakOutputReverse(-1, timeoutMs);
     this.backRight.configPeakOutputReverse(-1, timeoutMs);
 
-    this.backLeft.config_kP(slotIdx, /*.1*/1.5, timeoutMs);
+    this.backLeft.config_kP(slotIdx, 1.5, timeoutMs);
     this.backLeft.config_kI(slotIdx, 0, timeoutMs);
     this.backLeft.config_kD(slotIdx, 0, timeoutMs);
     this.backLeft.config_kF(slotIdx, 8, timeoutMs);
-    this.backRight.config_kP(slotIdx, /*.1*/1.5, timeoutMs);
+    this.backRight.config_kP(slotIdx, 1.5, timeoutMs);
     this.backRight.config_kI(slotIdx, 0, timeoutMs);
     this.backRight.config_kD(slotIdx, 0, timeoutMs);
     this.backRight.config_kF(slotIdx, 8, timeoutMs);
@@ -136,8 +142,8 @@ public class Drive implements IGoatSystem {
   }
 
   public boolean atTarget() {
-    if (Math.abs(this.getLeftSpeed() - this.getLeftPosition()) <= 25) {
-      if (Math.abs(this.getRightSpeed() - this.getRightPosition()) <= 25) {
+    if (Math.abs(this.getLeftSpeed() - -this.getLeftPosition()) <= 50) {
+      if (Math.abs(this.getRightSpeed() - -this.getRightPosition()) <= 50) {
         return true;
       }
     }
@@ -271,10 +277,15 @@ public class Drive implements IGoatSystem {
   @Override
   public void teleopUpdateSystem(LogitechF310 driver, LogitechF310 operator) {
 
+    double A = 0.65;
+    double leftY = -driver.getAxisValue(LogitechAxis.LEFT_Y);
+    double rightY = -driver.getAxisValue(LogitechAxis.RIGHT_Y);
+    leftY = (A*Math.pow(leftY, 3)) + ((1-A)*leftY);
+    rightY = (A*Math.pow(rightY, 3)) + ((1-A)*rightY);
     this.setControlMode(ControlMode.PercentOutput);
     this.setDriveSpeed(
-        -driver.getAxisValue(LogitechAxis.LEFT_Y),
-        -driver.getAxisValue(LogitechAxis.RIGHT_Y)
+        leftY,
+        rightY
     );
     if (driver.getButtonValue(LogitechButton.BUT_BACK)) {
       if (System.currentTimeMillis() - this.getTransmissionTime() >= transmissionDelay) {

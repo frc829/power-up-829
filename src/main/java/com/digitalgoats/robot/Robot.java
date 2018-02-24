@@ -29,6 +29,7 @@ public class Robot extends IterativeRobot {
    // Setup Systems and Autos
     systemsGroup = new SystemsGroup();
     autosGroup = new AutosGroup(systemsGroup);
+    systemsGroup.drive.resetSensors();
 
     // Send SendableChooser
     SmartDashboard.putData("AutoChooser", autosGroup.createSendableChooser());
@@ -43,6 +44,7 @@ public class Robot extends IterativeRobot {
   @Override
   public void autonomousInit() {
     autosGroup.setSelectedAuto((SendableChooser<String>)SmartDashboard.getData("AutoChooser"));
+    autosGroup.findAutoByName(autosGroup.selectedKey).setStep(0);
   }
 
   @Override

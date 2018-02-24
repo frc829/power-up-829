@@ -26,6 +26,7 @@ public class AutosGroup {
 
     autosGroup.add(new MiddleAuto(systemsGroup));
     autosGroup.add(new RightAuto(systemsGroup));
+    autosGroup.add(new LeftAuto(systemsGroup));
 
   }
 
@@ -43,6 +44,7 @@ public class AutosGroup {
    * Execute the selected Autonomous
    */
   public void executeAutonomous() {
+    System.out.println(this.findAutoByName(this.selectedKey).getStep());
     this.findAutoByName(this.selectedKey).execute();
   }
 

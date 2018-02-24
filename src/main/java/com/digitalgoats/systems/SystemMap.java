@@ -28,19 +28,12 @@ public enum SystemMap {
   // Manipulator Pneumatics
   MAN_PCM(2),
   MAN_GRIPSOLENOID_FORWARD(0),
-  MAN_GRIPSOLENOID_BACKWARD(1),
-  MAN_PIVOTSOLENOID_FORWARD(2),
-  MAN_PIVOTSOLENOID_BACKWARD(3),
-  MAN_PIVOTSOLENOID_2_FORWARD(4),
-  MAN_PIVOTSOLENOID_2_BACKWARD(5),
+  MAN_PIVOTSOLENOID(1),
+  MAN_PIVOTSOLENOID_2(2),
 
   // Arm Talons
   ARM_STAGEONE_TALON(16),
-  ARM_STAGETWO_TALON(17),
-
-  // Arm Pneumatics
-  ARM_PCM(1),
-  ARM_TRANS_FORWARD(2);
+  ARM_STAGETWO_TALON(17);
 
   /** Value for the specified field */
   private int value;
