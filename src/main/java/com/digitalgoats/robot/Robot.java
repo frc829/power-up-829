@@ -23,9 +23,11 @@ public class Robot extends IterativeRobot {
 
   public void autonomousInit() {
     systemGroup.autoInit();
+    autoGroup.autoInit();
   }
 
   public void autonomousPeriodic() {
+    autoGroup.execute();
     systemGroup.update();
   }
 

@@ -1,6 +1,7 @@
 package com.digitalgoats.robot;
 
 import com.digitalgoats.framework.Auto;
+import com.digitalgoats.framework.ISystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
@@ -9,9 +10,20 @@ public class AutoGroup {
 
   private ArrayList<Auto> autos;
   private SendableChooser<String> autoChooser;
+  private String selectedAuto;
 
   public AutoGroup(SystemGroup systems) {
     this.setAutos(new ArrayList<Auto>());
+  }
+
+  public void autoInit() {
+    this.updateSelectedAuto();
+    this.getAuto().setStep(0);
+  }
+
+  public void execute() {
+    this.updateSelectedAuto();
+    this.getAuto().execute();
   }
 
   public void addToShuffleboard() {
@@ -19,6 +31,19 @@ public class AutoGroup {
       this.getAutos().get(i).addToDashboard(this.getAutoChooser(), i == 0);
     }
     SmartDashboard.putData("autochooser", this.getAutoChooser());
+  }
+
+  public void updateSelectedAuto() {
+    this.setSelectedAuto(this.getAutoChooser().getSelected());
+  }
+
+  public Auto getAuto() {
+    for (Auto auto : this.getAutos()) {
+      if (auto.getName().equals(this.getSelectedAuto())) {
+        return auto;
+      }
+    }
+    return null;
   }
 
   public ArrayList<Auto> getAutos() {
@@ -35,6 +60,14 @@ public class AutoGroup {
 
   public void setAutoChooser(SendableChooser<String> autoChooser) {
     this.autoChooser = autoChooser;
+  }
+
+  public String getSelectedAuto() {
+    return this.selectedAuto;
+  }
+
+  public void setSelectedAuto(String selectedAuto) {
+    this.selectedAuto = selectedAuto;
   }
 
 }
