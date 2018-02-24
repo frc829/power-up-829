@@ -20,12 +20,12 @@ public class RightAuto extends Auto {
   public void execute() {
     switchSide = MatchData.getOwnedSide(GameFeature.SWITCH_NEAR);
     scaleSide = MatchData.getOwnedSide(GameFeature.SCALE);
-    if (switchSide == OwnedSide.RIGHT && scaleSide == switchSide) {
+    if (switchSide == OwnedSide.LEFT && scaleSide == switchSide) {
       this.bothOn();
-    } else if (switchSide == OwnedSide.RIGHT) {
-      this.oneSide(14, 500);
-    } else if (scaleSide == OwnedSide.RIGHT) {
-      this.oneSide(30, 2500);
+    } else if (switchSide == OwnedSide.LEFT) {
+      this.oneSide(12.125, .5,750);
+    } else if (scaleSide == OwnedSide.LEFT) {
+      this.oneSide(30, 2,2500);
     } else {
       this.noneOn();
     }
@@ -41,7 +41,7 @@ public class RightAuto extends Auto {
     }
   }
 
-  public void oneSide(double driveDist, long liftTime) {
+  public void oneSide(double driveDist, double driveDistB, long liftTime) {
     switch (this.getStep()) {
 
       case 0: {
@@ -49,12 +49,13 @@ public class RightAuto extends Auto {
         this.systemsGroup.manipulator.setGripSolenoidStatus(true);
         this.systemsGroup.drive.setControlMode(ControlMode.MotionMagic);
         this.systemsGroup.drive.setDriveSpeed(driveDist * Drive.FOOT_COUNT_L, driveDist * Drive.FOOT_COUNT_R);
+        this.setStartTime(System.currentTimeMillis());
         this.nextStep();
         break;
       }
 
       case 1: {
-        if (this.systemsGroup.drive.atTarget()) {
+        if (this.systemsGroup.drive.atTarget() || this.getDeltaTime() >= 5000) {
           this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
           this.systemsGroup.drive.setDriveSpeed(0, 0);
           this.nextStep();
@@ -70,9 +71,9 @@ public class RightAuto extends Auto {
           this.nextStep();
         } else {
           if (this.systemsGroup.navx.getAngle() < -90) {
-            this.systemsGroup.drive.setDriveSpeed(.25, -.25);
+            this.systemsGroup.drive.setDriveSpeed(.5, -.5);
           } else if (this.systemsGroup.navx.getAngle() > -90) {
-            this.systemsGroup.drive.setDriveSpeed(-.25, .25);
+            this.systemsGroup.drive.setDriveSpeed(-.5, .5);
           }
         }
         break;
@@ -82,7 +83,10 @@ public class RightAuto extends Auto {
         if (this.getDeltaTime() >= liftTime) {
           this.systemsGroup.manipulator.setPivotSolenoidStatus(Manipulator.PIVOT_MID);
           this.systemsGroup.arm.setStageSpeed(.0625);
-          this.setStartTime(System.currentTimeMillis());
+          this.systemsGroup.drive.resetSensors();
+          this.systemsGroup.drive.setControlMode(ControlMode.MotionMagic);
+          this.systemsGroup.drive.setLeftSpeed(driveDistB * Drive.FOOT_COUNT_L);
+          this.systemsGroup.drive.setRightSpeed(driveDistB * Drive.FOOT_COUNT_R);
           this.nextStep();
         } else {
           this.systemsGroup.arm.setStageSpeed(.75);
@@ -91,12 +95,22 @@ public class RightAuto extends Auto {
       }
 
       case 4: {
+        if (this.systemsGroup.drive.atTarget()) {
+          this.systemsGroup.drive.setControlMode(ControlMode.PercentOutput);
+          this.systemsGroup.drive.setDriveSpeed(0, 0);
+          this.setStartTime(System.currentTimeMillis());
+          this.nextStep();
+        }
+        break;
+      }
+
+      case 5: {
         if (this.getDeltaTime() >= 1000) {
           this.systemsGroup.manipulator.setWheelSpeed(0);
           this.nextStep();
         } else {
           this.systemsGroup.manipulator.setGripSolenoidStatus(false);
-          this.systemsGroup.manipulator.setWheelSpeed(.5);
+          this.systemsGroup.manipulator.setWheelSpeed(-.75);
         }
         break;
       }

@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.Trajectory.Config;
 
 /**
  * The system for controlling the Drive
@@ -104,8 +106,8 @@ public class Drive implements IGoatSystem {
 
     this.backLeft.selectProfileSlot(slotIdx, timeoutMs);
     this.backRight.selectProfileSlot(slotIdx, timeoutMs);
-    this.backLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, timeoutMs);
-    this.backRight.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, timeoutMs);
+    this.backLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 20, timeoutMs);
+    this.backRight.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 20, timeoutMs);
 
     this.backLeft.configNominalOutputForward(0, timeoutMs);
     this.backRight.configNominalOutputForward(0, timeoutMs);
@@ -142,8 +144,8 @@ public class Drive implements IGoatSystem {
   }
 
   public boolean atTarget() {
-    if (Math.abs(this.getLeftSpeed() - -this.getLeftPosition()) <= 50) {
-      if (Math.abs(this.getRightSpeed() - -this.getRightPosition()) <= 50) {
+    if (Math.abs(Math.abs(this.getLeftSpeed()) - Math.abs(this.getLeftPosition())) <= 50) {
+      if (Math.abs(Math.abs(this.getRightSpeed()) - Math.abs(this.getRightPosition())) <= 50) {
         return true;
       }
     }
