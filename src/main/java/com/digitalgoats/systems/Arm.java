@@ -54,7 +54,8 @@ public class Arm implements IGoatSystem {
     scalePosition = new DigitalInput(SystemMap.MAN_SCALE_POSITION.getValue());
     switchPosition = new DigitalInput(SystemMap.MAN_SWITCH_POSITION.getValue());
     this.stageOne = new TalonSRX(SystemMap.ARM_STAGEONE_TALON.getValue());
-    this.stageOne.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
+    this.stageOne.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+    this.stageOne.setSelectedSensorPosition(0,0,10);
     this.stageTwo = new TalonSRX(SystemMap.ARM_STAGETWO_TALON.getValue());
 
   }
@@ -69,6 +70,8 @@ public class Arm implements IGoatSystem {
 
   public void updateStages() {
 
+    System.out.println(this.stageOne.getSelectedSensorPosition(0) + " Position");
+    System.out.println(this.stageOne.getSelectedSensorVelocity(0) + " Velocity");
     this.stageOne.set(ControlMode.PercentOutput, this.getStageSpeed());
     this.stageTwo.follow(this.stageOne);
 
@@ -134,21 +137,24 @@ public class Arm implements IGoatSystem {
                     this.scalePosition.get() ? SCALE_POSITION : this.getLastSwitch()
     );
 
-    if (this.getTargetSwitch() == 99) {
-      if (Math.abs(operator.getAxisValue(LogitechAxis.LEFT_Y)) > .1 && canGoDirection(-operator.getAxisValue(LogitechAxis.LEFT_Y))) {
-        this.setStageSpeed(.65*Math.pow(-operator.getAxisValue(LogitechAxis.LEFT_Y), 3)+((1-.65)*-operator.getAxisValue(LogitechAxis.LEFT_Y)));
-        }
-        else {
-        this.setStageSpeed(0.0625);
-      }
+    //if (Math.abs(operator.getAxisValue(LogitechAxis.LEFT_Y)) > .1 && canGoDirection(-operator.getAxisValue(LogitechAxis.LEFT_Y))) {
+      //if(this.stageOne.getSelectedSensorPosition(0) < )
+
+      this.setStageSpeed(
+          .65 * Math.pow(-operator.getAxisValue(LogitechAxis.LEFT_Y), 3) + ((1 - .65) * -operator
+              .getAxisValue(LogitechAxis.LEFT_Y)));
+    //} else {
+      //this.setStageSpeed(0.0625);
+      this.updateStages();
+
     }
 
-    this.updateStages();
 
-  }
+    @Override
+    public void updateSmartDashboard() {
 
-  @Override
-  public void updateSmartDashboard() {
+
+
     SmartDashboard.putNumber("Arm: Stage Speed", this.getStageSpeed());
     SmartDashboard.putNumber("Arm: Stage Velocity", this.stageOne.getSelectedSensorVelocity(0));
   }
