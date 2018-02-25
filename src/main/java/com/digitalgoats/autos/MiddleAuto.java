@@ -6,6 +6,10 @@ import com.digitalgoats.robot.SystemGroup;
 import com.digitalgoats.systems.Drive;
 import com.digitalgoats.systems.Elevator;
 import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.Trajectory.Config;
+import jaci.pathfinder.Trajectory.FitMethod;
+import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.followers.EncoderFollower;
 import java.io.File;
 import openrio.powerup.MatchData;
@@ -14,7 +18,7 @@ import openrio.powerup.MatchData.OwnedSide;
 
 public class MiddleAuto extends Auto {
 
-  File elevatorCsv, leftCsv, rightCsv;
+  File leftCsv, rightCsv;
 
   EncoderFollower elevatorFollower, leftFollower, rightFollower;
 
@@ -29,7 +33,18 @@ public class MiddleAuto extends Auto {
       // Load trajectory from file and configure encoder followers
       case 0: {
 
-        elevatorCsv = new File("/home/lvyser/traj/middle/arm.csv");
+        Trajectory elevatorTrajectory = Pathfinder.generate(new Waypoint[] {
+            new Waypoint(0, 0, 0),
+            new Waypoint(0.3048, 0, 0)
+        }, new Config(
+            FitMethod.HERMITE_CUBIC,
+            Config.SAMPLES_HIGH,
+            .05,
+            1.2192,
+            0.9144,
+            18.288
+        ));
+
         if (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT) {
           leftCsv = new File("/home/lvuser/traj/middle/left-left.csv");
           rightCsv = new File("/home/lvuser/traj/middle/left-right.csv");
@@ -38,7 +53,7 @@ public class MiddleAuto extends Auto {
           rightCsv = new File("/home/lvuser/traj/middle/right-right.csv");
         }
 
-        elevatorFollower = new EncoderFollower(Pathfinder.readFromCSV(elevatorCsv));
+        elevatorFollower = new EncoderFollower(elevatorTrajectory);
         leftFollower = new EncoderFollower(Pathfinder.readFromCSV(leftCsv));
         rightFollower = new EncoderFollower(Pathfinder.readFromCSV(rightCsv));
 
