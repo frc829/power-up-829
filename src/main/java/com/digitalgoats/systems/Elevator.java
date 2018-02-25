@@ -38,8 +38,8 @@ public class Elevator implements ISystem {
     this.setElevatorControlMode(ControlMode.PercentOutput);
     this.setElevatorSetPoint(0);
 
-    this.elevatorMaster = new TalonSRX(SystemMap.Arm.ELEVATOR_MASTER);
-    this.elevatorSlave = new TalonSRX(SystemMap.Arm.ELEVATOR_SLAVE);
+    this.elevatorMaster = new TalonSRX(SystemMap.Elevator.ELEVATOR_MASTER);
+    this.elevatorSlave = new TalonSRX(SystemMap.Elevator.ELEVATOR_SLAVE);
 
     this.setupEncoders();
     this.resetEncoders();
