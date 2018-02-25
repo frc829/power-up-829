@@ -13,6 +13,7 @@ public class SystemGroup {
     this.setSystems(new ArrayList<ISystem>());
     this.getSystems().add(new Drive());
     this.getSystems().add(new Elevator());
+    this.getSystems().add(new Manipulator());
   }
 
   public void autoInit() {

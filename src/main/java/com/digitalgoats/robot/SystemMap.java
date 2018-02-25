@@ -22,4 +22,15 @@ public class SystemMap {
 
   }
 
+  public static final class Manipulator {
+
+    public static final int PCM = 2;
+    public static final int GRIP_CHANNEL = 0;
+    public static final int PIVOT_P_CHANNEL = 1;
+    public static final int PIVOT_S_CHANNEL = 2;
+    public static final int INTAKE_MASTER = 18;
+    public static final int INTAKE_SLAVE = 19;
+
+  }
+
 }
