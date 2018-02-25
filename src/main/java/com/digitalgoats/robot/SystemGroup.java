@@ -10,6 +10,7 @@ public class SystemGroup {
   private ArrayList<ISystem> systems;
   public Drive drive;
   public Elevator elevator;
+  public Gyro gyro;
   public Manipulator manipulator;
 
   public SystemGroup() {
@@ -17,9 +18,11 @@ public class SystemGroup {
     this.setSystems(new ArrayList<ISystem>());
     drive = new Drive();
     elevator = new Elevator();
+    gyro = new Gyro();
     manipulator = new Manipulator();
     this.getSystems().add(drive);
     this.getSystems().add(elevator);
+    this.getSystems().add(gyro);
     this.getSystems().add(manipulator);
 
   }

@@ -1,7 +1,7 @@
 package com.digitalgoats.robot;
 
+import com.digitalgoats.autos.MiddleAuto;
 import com.digitalgoats.framework.Auto;
-import com.digitalgoats.framework.ISystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ public class AutoGroup {
 
   public AutoGroup(SystemGroup systems) {
     this.setAutos(new ArrayList<Auto>());
+    this.getAutos().add(new MiddleAuto(systems));
   }
 
   public void autoInit() {
