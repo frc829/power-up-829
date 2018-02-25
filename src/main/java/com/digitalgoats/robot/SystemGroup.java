@@ -8,12 +8,20 @@ import java.util.ArrayList;
 public class SystemGroup {
 
   private ArrayList<ISystem> systems;
+  public Drive drive;
+  public Elevator elevator;
+  public Manipulator manipulator;
 
   public SystemGroup() {
+
     this.setSystems(new ArrayList<ISystem>());
+    drive = new Drive();
+    elevator = new Elevator();
+    manipulator = new Manipulator();
     this.getSystems().add(new Drive());
     this.getSystems().add(new Elevator());
     this.getSystems().add(new Manipulator());
+
   }
 
   public void autoInit() {
