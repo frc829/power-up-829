@@ -18,9 +18,9 @@ public class SystemGroup {
     drive = new Drive();
     elevator = new Elevator();
     manipulator = new Manipulator();
-    this.getSystems().add(new Drive());
-    this.getSystems().add(new Elevator());
-    this.getSystems().add(new Manipulator());
+    this.getSystems().add(drive);
+    this.getSystems().add(elevator);
+    this.getSystems().add(manipulator);
 
   }
 
