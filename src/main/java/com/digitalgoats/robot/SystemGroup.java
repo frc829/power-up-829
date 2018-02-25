@@ -1,6 +1,7 @@
 package com.digitalgoats.robot;
 
 import com.digitalgoats.framework.ISystem;
+import com.digitalgoats.systems.*;
 import com.digitalgoats.util.LogitechF310;
 import java.util.ArrayList;
 
@@ -10,6 +11,7 @@ public class SystemGroup {
 
   public SystemGroup() {
     this.setSystems(new ArrayList<ISystem>());
+    this.getSystems().add(new Drive());
   }
 
   public void autoInit() {
