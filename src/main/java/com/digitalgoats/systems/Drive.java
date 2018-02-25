@@ -16,10 +16,11 @@ public class Drive implements ISystem {
 
   // region Constants
 
-  public static final double BASE_WIDTH = .5;
   public static final double WHEEL_DIAMETER = 0.1524;
   public static final int ENC_COUNTS = 1440;
   public static final int ENC_T = 20;
+  public static final int MAX_V_L = 3000;
+  public static final int MAX_V_R = 3000;
   public static final int PID_SLOT = 0;
   public static final int PID_TIMEOUT = 10;
   public static final long TRANS_DELAY = 500;

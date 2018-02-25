@@ -109,7 +109,7 @@ public class Manipulator implements ISystem {
   @Override
   public void update() {
 
-    this.grip.set(this.isGripStatus());
+    this.grip.set(!this.isGripStatus());
 
     this.pivotPrimary.set(this.getPivotPosition() != PivotPosition.UP);
     this.pivotSecondary.set(this.getPivotPosition() == PivotPosition.DOWN);

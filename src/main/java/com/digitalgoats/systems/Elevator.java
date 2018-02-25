@@ -14,7 +14,10 @@ public class Elevator implements ISystem {
 
   // region Constants
 
+  public static final double WHEEL_DIAMETER = .32;
+  public static final int ENC_COUNTS = 1440;
   public static final int ENC_T = 20;
+  public static final int MAX_V = 3000;
   public static final int PID_SLOT = 0;
   public static final int PID_TIMEOUT = 10;
 
