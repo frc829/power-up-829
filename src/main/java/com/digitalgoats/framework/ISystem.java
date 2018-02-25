@@ -8,14 +8,23 @@ import com.digitalgoats.util.LogitechF310;
 public interface ISystem {
 
   /** Called on autonomous initialization */
-  public void autoInit();
+  public default void autoInit() {
+  }
+
   /** Called to update shuffleboard */
-  public void shuffleboard();
+  public default void shuffleboard() {
+  }
+
   /** Called on teleop initialization */
-  public void teleopInit();
+  public default void teleopInit() {
+  }
+
   /** Called during teleop period */
-  public void teleopUpdate(LogitechF310 driver, LogitechF310 operator);
+  public default void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
+  }
+
   /** Called during each period of the robot */
-  public void update();
+  public default void update() {
+  }
 
 }
