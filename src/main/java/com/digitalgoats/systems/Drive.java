@@ -60,6 +60,13 @@ public class Drive implements ISystem {
     this.midRight = new TalonSRX(SystemMap.Drive.MID_RIGHT);
     this.backRight = new TalonSRX(SystemMap.Drive.BACK_RIGHT);
 
+    this.frontLeft.setInverted(true);
+    this.backLeft.setInverted(true);
+    this.midLeft.setInverted(true);
+    this.frontRight.setInverted(true);
+    this.midRight.setInverted(false);
+    this.backRight.setInverted(true);
+
     this.setupEncoders();
     this.resetEncoders();
 
@@ -74,6 +81,9 @@ public class Drive implements ISystem {
 
     this.backLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_3_Quadrature, ENC_T, PID_TIMEOUT);
     this.backRight.setStatusFramePeriod(StatusFrameEnhanced.Status_3_Quadrature, ENC_T, PID_TIMEOUT);
+
+    this.backLeft.setSensorPhase(true);
+    this.backRight.setSensorPhase(false);
 
   }
 

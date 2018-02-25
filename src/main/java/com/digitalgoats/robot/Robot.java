@@ -1,10 +1,12 @@
 package com.digitalgoats.robot;
 
 import com.digitalgoats.util.LogitechF310;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 
 public class Robot extends IterativeRobot {
 
+  Compressor compressor = new Compressor();
   LogitechF310 driver, operator;
 
   SystemGroup systemGroup;
@@ -12,6 +14,7 @@ public class Robot extends IterativeRobot {
 
   public void robotInit() {
 
+    compressor.start();
     driver = new LogitechF310(0);
     operator = new LogitechF310(1);
     systemGroup = new SystemGroup();

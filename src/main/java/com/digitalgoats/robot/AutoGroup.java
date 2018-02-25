@@ -14,6 +14,7 @@ public class AutoGroup {
 
   public AutoGroup(SystemGroup systems) {
     this.setAutos(new ArrayList<Auto>());
+    this.setAutoChooser(new SendableChooser<String>());
     this.getAutos().add(new MiddleAuto(systems));
   }
 
@@ -28,9 +29,6 @@ public class AutoGroup {
   }
 
   public void addToShuffleboard() {
-    for (int i = 0; i < this.getAutos().size(); i++) {
-      this.getAutos().get(i).addToDashboard(this.getAutoChooser(), i == 0);
-    }
     SmartDashboard.putData("autochooser", this.getAutoChooser());
   }
 

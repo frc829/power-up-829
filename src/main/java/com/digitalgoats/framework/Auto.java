@@ -11,7 +11,7 @@ public abstract class Auto {
   /** The current step for autonomous */
   private int step;
   /** The name for the autonomous */
-  private String name;
+  private String name = "";
   /** The systems available during autonomous */
   private SystemGroup systems;
 
@@ -32,14 +32,8 @@ public abstract class Auto {
    * Add the auto to the chooser for Shuffleboard
    * @param chooser
    *  The SendableChooser for auto selection
-   * @param isDefault
-   *  Should the auto be selected by default
    */
-  public void addToDashboard(SendableChooser<String> chooser, boolean isDefault) {
-    if (isDefault) {
-      chooser.addDefault(this.getName(), this.getName());
-      return;
-    }
+  public void addToDashboard(SendableChooser<String> chooser) {
     chooser.addObject(this.getName(), this.getName());
     return;
   }

@@ -48,6 +48,7 @@ public class Manipulator implements ISystem {
     this.pivotSecondary = new Solenoid(SystemMap.Manipulator.PCM, SystemMap.Manipulator.PIVOT_S_CHANNEL);
     this.intakeMaster = new TalonSRX(SystemMap.Manipulator.INTAKE_MASTER);
     this.intakeSlave = new TalonSRX(SystemMap.Manipulator.INTAKE_SLAVE);
+    this.intakeSlave.setInverted(true);
 
   }
 

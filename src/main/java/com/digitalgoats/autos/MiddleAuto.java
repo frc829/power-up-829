@@ -65,13 +65,13 @@ public class MiddleAuto extends Auto {
         elevatorFollower.configurePIDVA(8, 0, 0, 1/Elevator.MAX_V, 0);
         leftFollower.configureEncoder(
             (int)this.getSystems().drive.getLeftPosition(),
-            Drive.ENC_COUNTS,
+            Drive.ENC_COUNTS * 3,
             Drive.WHEEL_DIAMETER
         );
         leftFollower.configurePIDVA(8, 0, 0, 1/Drive.MAX_V_L, 0);
         rightFollower.configureEncoder(
             (int)this.getSystems().drive.getRightPosition(),
-            Drive.ENC_COUNTS,
+            Drive.ENC_COUNTS * 3,
             Drive.WHEEL_DIAMETER
         );
         rightFollower.configurePIDVA(8, 0, 0, 1/Drive.MAX_V_R, 0);
