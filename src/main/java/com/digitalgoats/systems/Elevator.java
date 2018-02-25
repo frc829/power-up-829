@@ -16,8 +16,8 @@ public class Elevator implements ISystem {
 
   public static final double WHEEL_DIAMETER = .32;
   public static final int ENC_COUNTS = 1440;
-  public static final int ENC_T = 20;
-  public static final int MAX_V = 3000;
+  public static final int ENC_T = 50;
+  public static final int MAX_V = 168;
   public static final int PID_SLOT = 0;
   public static final int PID_TIMEOUT = 10;
 
@@ -115,7 +115,11 @@ public class Elevator implements ISystem {
   @Override
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
 
-    this.setElevatorSetPoint(convertStickValue(-operator.getAxis(LogitechAxis.LY)));
+    if (Math.abs(convertStickValue(-operator.getAxis(LogitechAxis.LY))) >= .1) {
+      this.setElevatorSetPoint(convertStickValue(-operator.getAxis(LogitechAxis.LY)));
+    } else {
+      this.setElevatorSetPoint(.0625);
+    }
 
   }
 

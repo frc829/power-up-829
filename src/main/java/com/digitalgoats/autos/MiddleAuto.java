@@ -11,14 +11,14 @@ import jaci.pathfinder.Trajectory.Config;
 import jaci.pathfinder.Trajectory.FitMethod;
 import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.followers.EncoderFollower;
+import jaci.pathfinder.modifiers.TankModifier;
 import java.io.File;
+import java.nio.file.Path;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
 import openrio.powerup.MatchData.OwnedSide;
 
 public class MiddleAuto extends Auto {
-
-  File leftCsv, rightCsv;
 
   EncoderFollower elevatorFollower, leftFollower, rightFollower;
 
@@ -35,27 +35,41 @@ public class MiddleAuto extends Auto {
 
         Trajectory elevatorTrajectory = Pathfinder.generate(new Waypoint[] {
             new Waypoint(0, 0, 0),
-            new Waypoint(0.3048, 0, 0)
+            new Waypoint(0.3084, 0, 0)
         }, new Config(
             FitMethod.HERMITE_CUBIC,
-            Config.SAMPLES_HIGH,
+            Config.SAMPLES_FAST,
             .05,
-            1.2192,
-            0.9144,
-            18.288
+            1.7,
+            2,
+            60
         ));
 
-        if (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT) {
-          leftCsv = new File("/home/lvuser/traj/middle/left-left.csv");
-          rightCsv = new File("/home/lvuser/traj/middle/left-right.csv");
-        } else {
-          leftCsv = new File("/home/lvuser/traj/middle/right-left.csv");
-          rightCsv = new File("/home/lvuser/traj/middle/right-right.csv");
-        }
+        Trajectory driveTrajectory = Pathfinder.generate(new Waypoint[] {
+            new Waypoint(0, 0, 0),
+            new Waypoint(10, 0, 0)
+        }, new Config(
+           FitMethod.HERMITE_CUBIC,
+           Config.SAMPLES_FAST,
+           .05,
+           6,
+           3,
+           60
+        ));
+        TankModifier modifier = new TankModifier(driveTrajectory).modify(.517525);
 
         elevatorFollower = new EncoderFollower(elevatorTrajectory);
-        leftFollower = new EncoderFollower(Pathfinder.readFromCSV(leftCsv));
-        rightFollower = new EncoderFollower(Pathfinder.readFromCSV(rightCsv));
+        try {
+          File left = new File("/trajectories/mid-left_left_detailed.csv");
+          File right = new File("/trajectories/mid-left_right_detailed.csv");
+          Trajectory leftTraj = Pathfinder.readFromCSV(left);
+          Trajectory rightTraj = Pathfinder.readFromCSV(right);
+          leftFollower = new EncoderFollower(leftTraj);
+          rightFollower = new EncoderFollower(rightTraj);
+        } catch (Exception e) {
+          leftFollower = new EncoderFollower(modifier.getLeftTrajectory());
+          rightFollower = new EncoderFollower(modifier.getRightTrajectory());
+        }
 
         elevatorFollower.configureEncoder(
             (int)this.getSystems().elevator.getElevatorPosition(),
@@ -84,22 +98,29 @@ public class MiddleAuto extends Auto {
       // Execute trajectories
       case 1: {
 
-        double left = leftFollower.calculate((int)this.getSystems().drive.getLeftPosition());
-        double right = rightFollower.calculate((int)this.getSystems().drive.getRightPosition());
-        double gyroHeading = this.getSystems().gyro.getAngle();
-        double desiredHeading = Pathfinder.r2d(leftFollower.getHeading());
-        double deltaHeading = Pathfinder.boundHalfDegrees(desiredHeading - gyroHeading);
-        double turn = .8 * (-1/80) * deltaHeading;
-        this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
-        this.getSystems().drive.setLeftSetPoint(left + turn);
-        this.getSystems().drive.setRightSetPoint(right - turn);
-
         double elevator = elevatorFollower.calculate((int)this.getSystems().elevator.getElevatorPosition());
         this.getSystems().elevator.setElevatorControlMode(ControlMode.PercentOutput);
         this.getSystems().elevator.setElevatorSetPoint(elevator);
 
-        if (Math.abs(left + turn) <= .05 && Math.abs(right - turn) <= .05 && Math.abs(elevator) <= .05) {
-          this.nextStep();
+        double gyro = this.getSystems().gyro.getAngle();
+        double desired = Pathfinder.r2d(leftFollower.getHeading());
+        double delta = Pathfinder.boundHalfDegrees(desired - gyro);
+        double turn = .8 * (-1/80) * delta;
+
+        double left = leftFollower.calculate((int)this.getSystems().drive.getLeftPosition());
+        this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+        this.getSystems().drive.setLeftSetPoint(left + turn);
+
+        double right = rightFollower.calculate((int)this.getSystems().drive.getRightPosition());
+        this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+        this.getSystems().drive.setRightSetPoint(right - turn);
+
+        System.out.println(elevator);
+        System.out.println(left + turn);
+        System.out.println(right - turn);
+
+        if (elevator == 0) {
+          this.getSystems().elevator.setElevatorSetPoint(.0625);
         }
 
         break;
@@ -108,6 +129,7 @@ public class MiddleAuto extends Auto {
       // Release cube
       case 2: {
 
+        this.getSystems().elevator.setElevatorSetPoint(.0625);
         this.getSystems().manipulator.setIntakeSetPoint(1);
         this.getSystems().manipulator.setGripStatus(true);
 

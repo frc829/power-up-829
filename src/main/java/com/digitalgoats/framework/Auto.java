@@ -33,7 +33,11 @@ public abstract class Auto {
    * @param chooser
    *  The SendableChooser for auto selection
    */
-  public void addToDashboard(SendableChooser<String> chooser) {
+  public void addToDashboard(SendableChooser<String> chooser, boolean isDefault) {
+    if (isDefault) {
+      chooser.addDefault(this.getName(), this.getName());
+      return;
+    }
     chooser.addObject(this.getName(), this.getName());
     return;
   }

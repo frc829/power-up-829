@@ -29,6 +29,9 @@ public class AutoGroup {
   }
 
   public void addToShuffleboard() {
+    for (int i = 0; i < this.getAutos().size(); i++) {
+      this.getAutos().get(i).addToDashboard(this.getAutoChooser(), i == 0);
+    }
     SmartDashboard.putData("autochooser", this.getAutoChooser());
   }
 
