@@ -15,7 +15,7 @@ public class SystemMap {
 
   }
 
-  public static final class Arm {
+  public static final class Elevator {
 
     public static final int ELEVATOR_MASTER = 16;
     public static final int ELEVATOR_SLAVE = 17;
