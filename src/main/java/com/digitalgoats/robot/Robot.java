@@ -21,6 +21,11 @@ public class Robot extends IterativeRobot {
 
   }
 
+  public void robotPeriodic() {
+    systemGroup.update();
+    systemGroup.shuffleboard();
+  }
+
   public void autonomousInit() {
     systemGroup.autoInit();
     autoGroup.autoInit();
@@ -28,7 +33,6 @@ public class Robot extends IterativeRobot {
 
   public void autonomousPeriodic() {
     autoGroup.execute();
-    systemGroup.update();
   }
 
   public void teleopInit() {
@@ -37,7 +41,6 @@ public class Robot extends IterativeRobot {
 
   public void teleopPeriodic() {
     systemGroup.teleopUpdate(driver, operator);
-    systemGroup.update();
   }
 
 }
