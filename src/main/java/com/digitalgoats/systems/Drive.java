@@ -141,7 +141,7 @@ public class Drive implements ISystem {
     this.setLeftSetPoint(convertStickValue(-driver.getAxis(LogitechAxis.LY)));
     this.setRightSetPoint(convertStickValue(-driver.getAxis(LogitechAxis.RY)));
 
-    if (driver.getButton(LogitechButton.BACK) && canShiftTransmission()) {
+    if (driver.getButton(LogitechButton.BACK) && this.canShiftTransmission()) {
       this.setTransmissionStatus(!this.isTransmissionStatus());
       this.setTransmissionTime(System.currentTimeMillis());
     }
