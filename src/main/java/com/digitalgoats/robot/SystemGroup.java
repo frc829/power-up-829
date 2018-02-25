@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class SystemGroup {
 
   private ArrayList<ISystem> systems;
+  public Camera camera;
   public Drive drive;
   public Elevator elevator;
   public Gyro gyro;
@@ -15,11 +16,14 @@ public class SystemGroup {
 
   public SystemGroup() {
 
-    this.setSystems(new ArrayList<ISystem>());
+    camera = new Camera();
     drive = new Drive();
     elevator = new Elevator();
     gyro = new Gyro();
     manipulator = new Manipulator();
+
+    this.setSystems(new ArrayList<ISystem>());
+    this.getSystems().add(camera);
     this.getSystems().add(drive);
     this.getSystems().add(elevator);
     this.getSystems().add(gyro);
