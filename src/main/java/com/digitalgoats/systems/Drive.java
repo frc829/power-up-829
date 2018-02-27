@@ -16,8 +16,11 @@ public class Drive implements ISystem {
 
   // region Constants
 
-  public static final double WHEEL_DIAMETER = 0.1524;
-  public static final int ENC_COUNTS = 1440;
+  public static final double WHEEL_DIAMETER = 6;
+  public static final double CIRCUMFRENCE = WHEEL_DIAMETER * Math.PI;
+  public static final int ENC_COUNTS = 1440 * 3;
+  public static final double COUNT_INCH = CIRCUMFRENCE/ENC_COUNTS;
+  public static final double COUNT_FOOT = COUNT_INCH * 12;
   public static final int ENC_T = 20;
   public static final int MAX_V_L = 3000;
   public static final int MAX_V_R = 3000;
@@ -60,12 +63,12 @@ public class Drive implements ISystem {
     this.midRight = new TalonSRX(SystemMap.Drive.MID_RIGHT);
     this.backRight = new TalonSRX(SystemMap.Drive.BACK_RIGHT);
 
-    this.frontLeft.setInverted(true);
-    this.backLeft.setInverted(true);
-    this.midLeft.setInverted(true);
-    this.frontRight.setInverted(true);
-    this.midRight.setInverted(false);
-    this.backRight.setInverted(true);
+    this.frontLeft.setInverted(true); // P: 1 C: 1
+    this.backLeft.setInverted(true); // P: 1 C: 1
+    this.midLeft.setInverted(true); // P: 1 C: 1
+    this.frontRight.setInverted(false); // P: 1 C: 0
+    this.midRight.setInverted(false); // P: 0 C: 0
+    this.backRight.setInverted(false); // P: 1 C: 0
 
     this.setupEncoders();
     this.resetEncoders();
@@ -76,11 +79,37 @@ public class Drive implements ISystem {
 
   public void setupEncoders() {
 
+    this.backLeft.selectProfileSlot(PID_SLOT, PID_SLOT);
+    this.backRight.selectProfileSlot(PID_SLOT, PID_SLOT);
+
     this.backLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PID_SLOT, PID_TIMEOUT);
     this.backRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PID_SLOT, PID_TIMEOUT);
 
-    this.backLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_3_Quadrature, ENC_T, PID_TIMEOUT);
-    this.backRight.setStatusFramePeriod(StatusFrameEnhanced.Status_3_Quadrature, ENC_T, PID_TIMEOUT);
+    this.backLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, ENC_T, PID_TIMEOUT);
+    this.backRight.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, ENC_T, PID_TIMEOUT);
+
+    this.backLeft.config_kP(PID_SLOT, 1.5, PID_TIMEOUT);
+    this.backLeft.config_kI(PID_SLOT, 0, PID_TIMEOUT);
+    this.backLeft.config_kD(PID_SLOT, 0, PID_TIMEOUT);
+    this.backLeft.config_kF(PID_SLOT, 1/MAX_V_L, PID_TIMEOUT);
+    this.backRight.config_kP(PID_SLOT, 1.5, PID_TIMEOUT);
+    this.backRight.config_kI(PID_SLOT, 0, PID_TIMEOUT);
+    this.backRight.config_kD(PID_SLOT, 0, PID_TIMEOUT);
+    this.backRight.config_kF(PID_SLOT, 1/MAX_V_R, PID_TIMEOUT);
+
+    this.backLeft.configNominalOutputForward(0, PID_TIMEOUT);
+    this.backLeft.configNominalOutputReverse(0, PID_TIMEOUT);
+    this.backLeft.configPeakOutputForward(1, PID_TIMEOUT);
+    this.backLeft.configPeakOutputReverse(-1, PID_TIMEOUT);
+    this.backRight.configNominalOutputForward(0, PID_TIMEOUT);
+    this.backRight.configNominalOutputReverse(0, PID_TIMEOUT);
+    this.backRight.configPeakOutputForward(1, PID_TIMEOUT);
+    this.backRight.configPeakOutputReverse(-1, PID_TIMEOUT);
+
+    this.backLeft.configMotionAcceleration(6000, PID_TIMEOUT);
+    this.backLeft.configMotionCruiseVelocity(1500, PID_TIMEOUT);
+    this.backRight.configMotionAcceleration(6000, PID_TIMEOUT);
+    this.backRight.configMotionCruiseVelocity(1500, PID_TIMEOUT);
 
     this.backLeft.setSensorPhase(true);
     this.backRight.setSensorPhase(false);
@@ -92,6 +121,12 @@ public class Drive implements ISystem {
     this.backLeft.setSelectedSensorPosition(0, PID_SLOT, PID_TIMEOUT);
     this.backRight.setSelectedSensorPosition(0, PID_SLOT, PID_TIMEOUT);
 
+  }
+
+  public boolean atTarget() {
+    double deltaLeft = Math.abs(this.getLeftSetPoint() - this.getLeftPosition());
+    double deltaRight = Math.abs(this.getRightSetPoint() - this.getRightPosition());
+    return deltaLeft <= 15 && deltaRight <= 15;
   }
 
   public double getLeftPosition() {

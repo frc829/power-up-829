@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 
 public class Robot extends IterativeRobot {
 
-  Compressor compressor = new Compressor();
+  Compressor compressor = new Compressor(1);
   LogitechF310 driver, operator;
 
   SystemGroup systemGroup;
