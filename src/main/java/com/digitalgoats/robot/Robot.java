@@ -1,81 +1,50 @@
 package com.digitalgoats.robot;
 
-import com.digitalgoats.auto.AutosGroup;
-import com.digitalgoats.systems.SystemsGroup;
 import com.digitalgoats.util.LogitechF310;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.TimedRobot;
 
-/**
- * The main robot class for FIRST POWER UP
- */
-public class Robot extends IterativeRobot {
+public class Robot extends TimedRobot {
 
-  // Controllers
-  LogitechF310[] controllers = new LogitechF310[2];
+  Compressor compressor = new Compressor(1);
+  LogitechF310 driver, operator;
 
-  // Systems and Autos
-  SystemsGroup systemsGroup;
-  AutosGroup autosGroup;
+  SystemGroup systemGroup;
+  AutoGroup autoGroup;
 
-  @Override
   public void robotInit() {
 
-    // Setup Controllers
-    controllers[0] = new LogitechF310(0);
-    controllers[1] = new LogitechF310(1);
+    compressor.start();
+    driver = new LogitechF310(0);
+    operator = new LogitechF310(1);
+    systemGroup = new SystemGroup();
 
-   // Setup Systems and Autos
-    systemsGroup = new SystemsGroup();
-    autosGroup = new AutosGroup(systemsGroup);
-    systemsGroup.drive.resetSensors();
-
-    // Send SendableChooser
-    SmartDashboard.putData("AutoChooser", autosGroup.createSendableChooser());
-
-    systemsGroup.startCamera();
+    autoGroup = new AutoGroup(systemGroup);
+    autoGroup.addToShuffleboard();
 
   }
 
-  @Override
-  public void disabledInit() {}
+  public void robotPeriodic() {
+    systemGroup.update();
+    systemGroup.shuffleboard();
+  }
 
-  @Override
   public void autonomousInit() {
-    autosGroup.setSelectedAuto((SendableChooser<String>)SmartDashboard.getData("AutoChooser"));
-    autosGroup.findAutoByName(autosGroup.selectedKey).setStep(0);
+    systemGroup.autoInit();
+    autoGroup.autoInit();
   }
 
-  @Override
-  public void teleopInit() {}
-
-  @Override
-  public void disabledPeriodic() {
-
-    systemsGroup.disabledUpdateSystem();
-    systemsGroup.updateSmartDashboard();
-
-  }
-
-  @Override
-  public void robotPeriodic() {}
-
-  @Override
   public void autonomousPeriodic() {
-
-    autosGroup.executeAutonomous();
-    systemsGroup.autonomousUpdateSystem();
-    systemsGroup.updateSmartDashboard();
-
+    autoGroup.execute();
   }
 
-  @Override
+  public void teleopInit() {
+    systemGroup.teleopInit();
+  }
+
   public void teleopPeriodic() {
-
-    systemsGroup.teleopUpdateSystem(controllers[0], controllers[1]);
-    systemsGroup.updateSmartDashboard();
-
+    systemGroup.teleopUpdate(driver, operator);
   }
 
 }
