@@ -16,10 +16,10 @@ public class Drive implements ISystem {
 
   // region Constants
 
-  public static final double WHEEL_DIAMETER = .5;
+  public static final double WHEEL_DIAMETER = 6;
   public static final double CIRCUMFRENCE = WHEEL_DIAMETER * Math.PI;
   public static final int ENC_COUNTS = 1440 * 3;
-  public static final double COUNT_INCH = CIRCUMFRENCE/ENC_COUNTS;
+  public static final double COUNT_INCH = 45.2830188679243;
   public static final double COUNT_FOOT = COUNT_INCH * 12;
   public static final int ENC_T = 10;
   public static final int MAX_V_L = 3000;
@@ -66,9 +66,9 @@ public class Drive implements ISystem {
     this.frontLeft.setInverted(true); // P: 1 C: 1
     this.backLeft.setInverted(true); // P: 1 C: 1
     this.midLeft.setInverted(true); // P: 1 C: 1
-    this.frontRight.setInverted(true); // P: 1 C: 0
+    this.frontRight.setInverted(false); // P: 1 C: 0
     this.midRight.setInverted(false); // P: 0 C: 0
-    this.backRight.setInverted(true); // P: 1 C: 0
+    this.backRight.setInverted(false); // P: 1 C: 0
 
     this.setupEncoders();
     this.resetEncoders();
@@ -91,11 +91,11 @@ public class Drive implements ISystem {
     this.backLeft.config_kP(PID_SLOT, 1.5, PID_TIMEOUT);
     this.backLeft.config_kI(PID_SLOT, 0, PID_TIMEOUT);
     this.backLeft.config_kD(PID_SLOT, 0, PID_TIMEOUT);
-    this.backLeft.config_kF(PID_SLOT, 1/MAX_V_L, PID_TIMEOUT);
+    this.backLeft.config_kF(PID_SLOT, 8, PID_TIMEOUT);
     this.backRight.config_kP(PID_SLOT, 1.5, PID_TIMEOUT);
     this.backRight.config_kI(PID_SLOT, 0, PID_TIMEOUT);
     this.backRight.config_kD(PID_SLOT, 0, PID_TIMEOUT);
-    this.backRight.config_kF(PID_SLOT, 1/MAX_V_R, PID_TIMEOUT);
+    this.backRight.config_kF(PID_SLOT, 8, PID_TIMEOUT);
 
     this.backLeft.configNominalOutputForward(0, PID_TIMEOUT);
     this.backLeft.configNominalOutputReverse(0, PID_TIMEOUT);
@@ -106,14 +106,20 @@ public class Drive implements ISystem {
     this.backRight.configPeakOutputForward(1, PID_TIMEOUT);
     this.backRight.configPeakOutputReverse(-1, PID_TIMEOUT);
 
-    this.backLeft.configMotionAcceleration(6000, PID_TIMEOUT);
-    this.backLeft.configMotionCruiseVelocity(1500, PID_TIMEOUT);
-    this.backRight.configMotionAcceleration(6000, PID_TIMEOUT);
-    this.backRight.configMotionCruiseVelocity(1500, PID_TIMEOUT);
+    // Changed 6000 to 10000
+    this.backLeft.configMotionAcceleration(10000, PID_TIMEOUT);
+    this.backLeft.configMotionCruiseVelocity(6000, PID_TIMEOUT);
+    this.backRight.configMotionAcceleration(10000, PID_TIMEOUT);
+    this.backRight.configMotionCruiseVelocity(6000, PID_TIMEOUT);
 
     this.backLeft.setSensorPhase(true);
-    this.backRight.setSensorPhase(false);
+    this.backRight.setSensorPhase(true);
 
+  }
+
+  public void setCruiseVelocity(int sensorUnit) {
+    this.backLeft.configMotionCruiseVelocity(sensorUnit, PID_TIMEOUT);
+    this.backRight.configMotionCruiseVelocity(sensorUnit, PID_TIMEOUT);
   }
 
   public void resetEncoders() {
@@ -124,9 +130,17 @@ public class Drive implements ISystem {
   }
 
   public boolean atTarget() {
+    return atTarget(Drive.COUNT_INCH);
+  }
+
+  public boolean atTarget(double threshold) {
     double deltaLeft = Math.abs(this.getLeftSetPoint() - this.getLeftPosition());
     double deltaRight = Math.abs(this.getRightSetPoint() - this.getRightPosition());
-    return deltaLeft <= 15 && deltaRight <= 15;
+    return deltaLeft <= threshold && deltaRight <= threshold;
+  }
+
+  public boolean atAngle(double angle, Gyro gyro) {
+    return Math.abs(Math.abs(gyro.getAngle()) - Math.abs(angle)) <= 15;
   }
 
   public double getLeftPosition() {

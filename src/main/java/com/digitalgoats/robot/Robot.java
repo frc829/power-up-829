@@ -3,8 +3,9 @@ package com.digitalgoats.robot;
 import com.digitalgoats.util.LogitechF310;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.TimedRobot;
 
-public class Robot extends IterativeRobot {
+public class Robot extends TimedRobot {
 
   Compressor compressor = new Compressor(1);
   LogitechF310 driver, operator;

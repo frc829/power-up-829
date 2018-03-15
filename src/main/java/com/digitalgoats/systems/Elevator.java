@@ -116,9 +116,9 @@ public class Elevator implements ISystem {
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
 
     if (Math.abs(convertStickValue(-operator.getAxis(LogitechAxis.LY))) >= .1) {
-      this.setElevatorSetPoint(convertStickValue(-operator.getAxis(LogitechAxis.LY)));
+      this.setElevatorSetPoint(convertStickValue(-operator.getAxis(LogitechAxis.LY)) * .85);
     } else {
-      this.setElevatorSetPoint(.0625);
+      this.setElevatorSetPoint(.075);
     }
 
   }
@@ -126,6 +126,11 @@ public class Elevator implements ISystem {
   @Override
   public void update() {
 
+    if (this.getElevatorSetPoint() > 0 && this.elevatorMaster.getSensorCollection().isFwdLimitSwitchClosed()) {
+      this.setElevatorSetPoint(.075);
+    } else if (this.getElevatorSetPoint() < 0 && this.elevatorMaster.getSensorCollection().isRevLimitSwitchClosed()) {
+      this.setElevatorSetPoint(.075);
+    }
     this.elevatorMaster.set(this.getElevatorControlMode(), this.getElevatorSetPoint());
     this.elevatorSlave.follow(this.elevatorMaster);
 

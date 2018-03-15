@@ -22,6 +22,8 @@ public class Gyro extends AHRS implements ISystem {
     SmartDashboard.putNumber("Gyro: X Displacement", this.getDisplacementX());
     SmartDashboard.putNumber("Gyro: Y Displacement", this.getDisplacementY());
     SmartDashboard.putNumber("Gyro: Z Displacement", this.getDisplacementZ());
+    SmartDashboard.putBoolean("Gyro: Calibrating", this.isCalibrating());
+    SmartDashboard.putBoolean("Gyro: Connected", this.isConnected());
 
   }
 
