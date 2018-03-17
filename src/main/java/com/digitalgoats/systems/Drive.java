@@ -122,6 +122,13 @@ public class Drive implements ISystem {
     this.backRight.configMotionCruiseVelocity(sensorUnit, PID_TIMEOUT);
   }
 
+  public void changePeaks(double peak) {
+    this.backLeft.configPeakOutputForward(peak, PID_TIMEOUT);
+    this.backRight.configPeakOutputForward(peak, PID_TIMEOUT);
+    this.backLeft.configPeakOutputReverse(-peak, PID_TIMEOUT);
+    this.backRight.configPeakOutputReverse(-peak, PID_TIMEOUT);
+  }
+
   public void resetEncoders() {
 
     this.backLeft.setSelectedSensorPosition(0, PID_SLOT, PID_TIMEOUT);
