@@ -5,6 +5,8 @@ import com.digitalgoats.framework.Auto;
 import com.digitalgoats.robot.SystemGroup;
 import com.digitalgoats.systems.Drive;
 import com.digitalgoats.systems.Manipulator.PivotPosition;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import javax.naming.ldap.Control;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
 import openrio.powerup.MatchData.OwnedSide;
@@ -16,6 +18,7 @@ public class LeftAuto extends Auto {
 
   public LeftAuto(SystemGroup systems) {
     super("Left Auto", systems);
+    this.getSystems().drive.setTransmissionStatus(false);
   }
 
   public long getDeltaTime() {
@@ -24,14 +27,15 @@ public class LeftAuto extends Auto {
 
   @Override
   public void execute() {
+    SmartDashboard.putNumber("Intake Current", this.getSystems().manipulator.getIntakeCurrent());
     this.getSystems().drive.setCruiseVelocity(9000);
     if (MatchData.getOwnedSide(GameFeature.SCALE) == OwnedSide.LEFT) {
       ownSide(19 + (6/12), 55, 0, true);
     } else if (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT) {
-      ownSide(9.5, 90, 1.2, false);
-      copCube(-1, 15, 7.25, 120, 6);
+      ownSide(10, 90, 1.2, false);
+      copCube(-1, 15, 5.125, 85, 4.625, 170, .25);
     } else {
-      driveForward(15);
+      noneOwned(15, -85, 15, -5, 3, 85, 1);
     }
   }
 
@@ -132,7 +136,7 @@ public class LeftAuto extends Auto {
     }
   }
 
-  public void copCube(double backup, double angle1, double distance1, double angle2, double distance2) {
+  public void copCube(double backup, double angle1, double distance1, double angle2, double distance2, double angle3, double distance3) {
     switch (this.getStep()) {
 
       case 7: {
@@ -169,6 +173,7 @@ public class LeftAuto extends Auto {
 
       case 9: {
         this.getSystems().drive.setTransmissionStatus(true);
+        this.getSystems().manipulator.setIntakeSetPoint(1);
         if (this.getSystems().drive.atTarget()) {
           this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
           this.getSystems().drive.setLeftSetPoint(0);
@@ -176,7 +181,7 @@ public class LeftAuto extends Auto {
           this.nextStep();
         }
         if (!this.getSystems().elevator.getReverseSwitch()) {
-          this.getSystems().elevator.setElevatorSetPoint(-1);
+          this.getSystems().elevator.setElevatorSetPoint(-.5);
           this.getSystems().manipulator.setPivotPosition(PivotPosition.DOWN);
         } else {
           this.getSystems().elevator.setElevatorSetPoint(0);
@@ -190,7 +195,7 @@ public class LeftAuto extends Auto {
           this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
           this.getSystems().drive.setLeftSetPoint(distance2 * Drive.COUNT_FOOT);
           this.getSystems().drive.setRightSetPoint(distance2 * Drive.COUNT_FOOT);
-          this.getSystems().drive.changePeaks(.625);
+          this.getSystems().drive.changePeaks(.75);
           this.nextStep();
         } else {
           if (this.getSystems().gyro.getAngle() < angle2) {
@@ -205,8 +210,6 @@ public class LeftAuto extends Auto {
       }
 
       case 11: {
-        this.getSystems().manipulator.setIntakeSetPoint(.75);
-        this.getSystems().manipulator.setGripStatus(false);
         if (this.getSystems().drive.atTarget()) {
           this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
           this.getSystems().drive.setLeftSetPoint(0);
@@ -218,23 +221,53 @@ public class LeftAuto extends Auto {
       }
 
       case 12: {
-        if (System.currentTimeMillis() - lastTime >= 1000) {
+        if (this.getSystems().drive.atAngle(angle3, this.getSystems().gyro)) {
+          this.getSystems().drive.resetEncoders();
+          this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+          this.getSystems().drive.setLeftSetPoint(distance3 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(distance3 * Drive.COUNT_FOOT);
+          this.nextStep();
+        } else {
+          if (this.getSystems().gyro.getAngle() < angle3) {
+            this.getSystems().drive.setLeftSetPoint(turnSpeed);
+            this.getSystems().drive.setRightSetPoint(-turnSpeed);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(-turnSpeed);
+            this.getSystems().drive.setRightSetPoint(turnSpeed);
+          }
+        }
+        break;
+      }
+
+      case 13: {
+        if (this.getSystems().drive.atTarget() || this.getSystems().manipulator.getIntakeCurrent() >= 30) {
+          this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
+          lastTime = System.currentTimeMillis();
+          this.nextStep();
+        }
+        break;
+      }
+
+      case 14: {
+        if (System.currentTimeMillis() - lastTime >= 1000 || this.getSystems().manipulator.getIntakeCurrent() >= 30) {
           this.getSystems().manipulator.setIntakeSetPoint(0);
           this.getSystems().manipulator.setGripStatus(true);
           this.getSystems().drive.resetEncoders();
-          this.getSystems().drive.setLeftSetPoint(-4 * Drive.COUNT_FOOT);
-          this.getSystems().drive.setRightSetPoint(-4 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setLeftSetPoint(-Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(-Drive.COUNT_FOOT);
           this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
           this.nextStep();
         }
         break;
       }
 
-      case 13: {
+      case 15: {
         if (this.getSystems().drive.atTarget()) {
           this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
-          this.getSystems().drive.setLeftSetPoint(.5);
-          this.getSystems().drive.setRightSetPoint(-.5);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
           this.nextStep();
         }
         break;
@@ -244,6 +277,110 @@ public class LeftAuto extends Auto {
   }
 
   //endregion Autos
+
+  public void noneOwned(double distance1, double angle1, double distance2, double angle2,
+      double distance3, double angle3, double distance4) {
+    switch (this.getStep()) {
+
+      case 0: {
+        this.getSystems().drive.setTransmissionStatus(false);
+        this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
+        this.getSystems().drive.resetEncoders();
+        this.getSystems().drive.setLeftSetPoint(distance1 * Drive.COUNT_FOOT);
+        this.getSystems().drive.setRightSetPoint(distance1 * Drive.COUNT_FOOT);
+        this.nextStep();
+        break;
+      }
+
+      case 1: {
+        if (this.getSystems().drive.atTarget()) {
+          this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
+          this.nextStep();
+        }
+        break;
+      }
+
+      case 2: {
+        if (this.getSystems().drive.atAngle(angle1, this.getSystems().gyro)) {
+          this.getSystems().drive.resetEncoders();
+          this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
+          this.getSystems().drive.setLeftSetPoint(distance2 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(distance2 * Drive.COUNT_FOOT);
+          this.nextStep();
+        } else {
+          if (this.getSystems().gyro.getAngle() > angle1) {
+            this.getSystems().drive.setLeftSetPoint(turnSpeed);
+            this.getSystems().drive.setRightSetPoint(-turnSpeed);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(-turnSpeed);
+            this.getSystems().drive.setRightSetPoint(turnSpeed);
+          }
+        }
+        break;
+      }
+
+      case 3: {
+        if (this.getSystems().drive.atTarget()) {
+          this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
+          this.nextStep();
+        }
+        break;
+      }
+
+      case 4: {
+        if (this.getSystems().drive.atAngle(angle2, this.getSystems().gyro)) {
+          this.getSystems().drive.resetEncoders();
+          this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
+          this.getSystems().drive.setLeftSetPoint(distance3 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(distance3 * Drive.COUNT_FOOT);
+          this.nextStep();
+        } else {
+          if (this.getSystems().gyro.getAngle() > angle2) {
+            this.getSystems().drive.setLeftSetPoint(turnSpeed);
+            this.getSystems().drive.setRightSetPoint(-turnSpeed);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(-turnSpeed);
+            this.getSystems().drive.setRightSetPoint(turnSpeed);
+          }
+        }
+        break;
+      }
+
+      case 5: {
+        if (this.getSystems().drive.atTarget()) {
+          this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
+          this.nextStep();
+        }
+        break;
+      }
+
+      case 6: {
+        if (this.getSystems().drive.atAngle(angle3, this.getSystems().gyro)) {
+          this.getSystems().drive.resetEncoders();
+          this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
+          this.getSystems().drive.setLeftSetPoint(distance4 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(distance4 * Drive.COUNT_FOOT);
+          this.nextStep();
+        } else {
+          if (this.getSystems().gyro.getAngle() > angle3) {
+            this.getSystems().drive.setLeftSetPoint(turnSpeed);
+            this.getSystems().drive.setRightSetPoint(-turnSpeed);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(-turnSpeed);
+            this.getSystems().drive.setRightSetPoint(turnSpeed);
+          }
+        }
+        break;
+      }
+
+    }
+  }
 
 
 }
