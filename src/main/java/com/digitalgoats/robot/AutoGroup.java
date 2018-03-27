@@ -1,8 +1,8 @@
 package com.digitalgoats.robot;
 
+import com.digitalgoats.autos.DriveForwardAuto;
 import com.digitalgoats.autos.LeftAuto;
 import com.digitalgoats.autos.MiddleAuto;
-import com.digitalgoats.autos.PathfinderAuto;
 import com.digitalgoats.autos.RightAuto;
 import com.digitalgoats.framework.Auto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -21,7 +21,8 @@ public class AutoGroup {
     this.getAutos().add(new MiddleAuto(systems));
     this.getAutos().add(new LeftAuto(systems));
     this.getAutos().add(new RightAuto(systems));
-    //this.getAutos().add(new PathfinderAuto(systems));
+    this.getAutos().add(new DriveForwardAuto(systems));
+    this.getAutos().add(new MiddleAltAuto(systems));
   }
 
   public void autoInit() {

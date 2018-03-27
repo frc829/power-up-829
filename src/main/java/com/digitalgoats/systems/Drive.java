@@ -147,7 +147,11 @@ public class Drive implements ISystem {
   }
 
   public boolean atAngle(double angle, Gyro gyro) {
-    return Math.abs(Math.abs(gyro.getAngle()) - Math.abs(angle)) <= 15;
+    return atAngle(angle, gyro, 15);
+  }
+
+  public boolean atAngle(double angle, Gyro gyro, double tolerance) {
+    return Math.abs(Math.abs(gyro.getAngle()) - Math.abs(angle)) <= tolerance;
   }
 
   public double getLeftPosition() {

@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.framework.ISystem;
 import com.digitalgoats.robot.SystemMap;
+import com.digitalgoats.util.LogitechAxis;
 import com.digitalgoats.util.LogitechButton;
 import com.digitalgoats.util.LogitechF310;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -68,6 +69,10 @@ public class Manipulator implements ISystem {
     return System.currentTimeMillis() - this.getPivotTime() >= PIVOT_DELAY;
   }
 
+  public double getIntakeCurrent() {
+    return (Math.abs(this.intakeMaster.getOutputCurrent()) + Math.abs(this.intakeSlave.getOutputCurrent()))/2;
+  }
+
   // endregion
 
   // region Overridden
@@ -87,7 +92,11 @@ public class Manipulator implements ISystem {
     } else if (operator.getButton(LogitechButton.B)) {
       this.setIntakeSetPoint(1);
     } else {
-      this.setIntakeSetPoint(0);
+      if (Math.abs(operator.getAxis(LogitechAxis.RY)) >= .15) {
+        this.setIntakeSetPoint(-Math.abs(operator.getAxis(LogitechAxis.RY)));
+      } else {
+        this.setIntakeSetPoint(0);
+      }
     }
 
     if (operator.getButton(LogitechButton.X) && this.canShiftGrip()) {
@@ -100,7 +109,7 @@ public class Manipulator implements ISystem {
         this.setPivotPosition(PivotPosition.UP);
         this.setPivotTime(System.currentTimeMillis());
       } else if (operator.getButton(LogitechButton.Y)) {
-        this.setPivotPosition(this.getPivotPosition() == PivotPosition.DOWN ? PivotPosition.UP : PivotPosition.DOWN);
+        this.setPivotPosition(this.getPivotPosition() == PivotPosition.DOWN ? PivotPosition.MID : PivotPosition.DOWN);
         this.setPivotTime(System.currentTimeMillis());
       }
     }
@@ -112,6 +121,16 @@ public class Manipulator implements ISystem {
 
     this.grip.set(!this.isGripStatus());
 
+    if (this.getPivotPosition() == PivotPosition.UP) {
+      this.pivotPrimary.set(false);
+      this.pivotSecondary.set(false);
+    } else if (this.getPivotPosition() == PivotPosition.MID) {
+      this.pivotPrimary.set(true);
+      this.pivotSecondary.set(false);
+    } else {
+      this.pivotPrimary.set(true);
+      this.pivotSecondary.set(true);
+    }
     this.pivotPrimary.set(this.getPivotPosition() != PivotPosition.UP);
     this.pivotSecondary.set(this.getPivotPosition() == PivotPosition.DOWN);
 
