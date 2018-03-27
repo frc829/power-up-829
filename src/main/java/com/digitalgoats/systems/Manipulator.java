@@ -92,7 +92,11 @@ public class Manipulator implements ISystem {
     } else if (operator.getButton(LogitechButton.B)) {
       this.setIntakeSetPoint(1);
     } else {
-      this.setIntakeSetPoint(-Math.abs(operator.getAxis(LogitechAxis.RY)));
+      if (Math.abs(operator.getAxis(LogitechAxis.RY)) >= .15) {
+        this.setIntakeSetPoint(-Math.abs(operator.getAxis(LogitechAxis.RY)));
+      } else {
+        this.setIntakeSetPoint(0);
+      }
     }
 
     if (operator.getButton(LogitechButton.X) && this.canShiftGrip()) {

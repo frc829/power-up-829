@@ -30,12 +30,13 @@ public class LeftAuto extends Auto {
     SmartDashboard.putNumber("Intake Current", this.getSystems().manipulator.getIntakeCurrent());
     this.getSystems().drive.setCruiseVelocity(9000);
     if (MatchData.getOwnedSide(GameFeature.SCALE) == OwnedSide.LEFT) {
-      ownSide(19 + (6/12), 55, 0, true);
+      ownSide(16.9, 50, 0, true);
     } else if (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT) {
       ownSide(10, 90, 1.2, false);
       copCube(-1, 15, 5.125, 85, 4.625, 170, .25);
     } else {
-      noneOwned(15, -85, 15, -5, 3, 85, 1);
+      driveForward(15);
+      //noneOwned(16, -65, 15.125, -15, .25);
     }
   }
 
@@ -173,7 +174,7 @@ public class LeftAuto extends Auto {
 
       case 9: {
         this.getSystems().drive.setTransmissionStatus(true);
-        this.getSystems().manipulator.setIntakeSetPoint(1);
+        this.getSystems().manipulator.setIntakeSetPoint(-1);
         if (this.getSystems().drive.atTarget()) {
           this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
           this.getSystems().drive.setLeftSetPoint(0);
@@ -279,10 +280,11 @@ public class LeftAuto extends Auto {
   //endregion Autos
 
   public void noneOwned(double distance1, double angle1, double distance2, double angle2,
-      double distance3, double angle3, double distance4) {
+      double distance3) {
     switch (this.getStep()) {
 
       case 0: {
+        this.getSystems().drive.changePeaks(.75);
         this.getSystems().drive.setTransmissionStatus(false);
         this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
         this.getSystems().drive.resetEncoders();
@@ -340,11 +342,11 @@ public class LeftAuto extends Auto {
           this.nextStep();
         } else {
           if (this.getSystems().gyro.getAngle() > angle2) {
-            this.getSystems().drive.setLeftSetPoint(turnSpeed);
-            this.getSystems().drive.setRightSetPoint(-turnSpeed);
-          } else {
             this.getSystems().drive.setLeftSetPoint(-turnSpeed);
             this.getSystems().drive.setRightSetPoint(turnSpeed);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(turnSpeed);
+            this.getSystems().drive.setRightSetPoint(-turnSpeed);
           }
         }
         break;
@@ -361,21 +363,88 @@ public class LeftAuto extends Auto {
       }
 
       case 6: {
-        if (this.getSystems().drive.atAngle(angle3, this.getSystems().gyro)) {
-          this.getSystems().drive.resetEncoders();
-          this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
-          this.getSystems().drive.setLeftSetPoint(distance4 * Drive.COUNT_FOOT);
-          this.getSystems().drive.setRightSetPoint(distance4 * Drive.COUNT_FOOT);
+        if (this.getSystems().elevator.getForwardSwitch()) {
+          this.getSystems().elevator.setElevatorSetPoint(.0625);
+          lastTime = System.currentTimeMillis();
           this.nextStep();
         } else {
-          if (this.getSystems().gyro.getAngle() > angle3) {
-            this.getSystems().drive.setLeftSetPoint(turnSpeed);
-            this.getSystems().drive.setRightSetPoint(-turnSpeed);
-          } else {
+          this.getSystems().manipulator.setPivotPosition(PivotPosition.MID);
+          this.getSystems().elevator.setElevatorSetPoint(.625);
+        }
+        break;
+      }
+
+      case 7: {
+        if (System.currentTimeMillis() - lastTime >= 1000) {
+          this.getSystems().manipulator.setIntakeSetPoint(0);
+          this.nextStep();
+        }
+        this.getSystems().manipulator.setIntakeSetPoint(-1);
+        break;
+      }
+
+      case 8: {
+        this.getSystems().manipulator.setIntakeSetPoint(0);
+        if (this.getSystems().elevator.getReverseSwitch()) {
+          this.getSystems().elevator.setElevatorSetPoint(0);
+          this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
+          this.nextStep();
+        } else {
+          this.getSystems().elevator.setElevatorSetPoint(-1);
+        }
+        break;
+      }
+
+      case 9: {
+        if (this.getSystems().drive.atAngle(-180, this.getSystems().gyro)) {
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
+          this.getSystems().drive.resetEncoders();
+          this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
+          this.getSystems().drive.setLeftSetPoint(Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(Drive.COUNT_FOOT);
+          this.getSystems().manipulator.setIntakeSetPoint(1);
+          this.getSystems().manipulator.setGripStatus(false);
+          this.nextStep();
+        } else {
+          if (this.getSystems().gyro.getAngle() > -180) {
             this.getSystems().drive.setLeftSetPoint(-turnSpeed);
             this.getSystems().drive.setRightSetPoint(turnSpeed);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(turnSpeed);
+            this.getSystems().drive.setRightSetPoint(-turnSpeed);
           }
         }
+        break;
+      }
+
+      case 10: {
+        if (this.getSystems().drive.atTarget()) {
+          this.getSystems().drive.resetEncoders();
+          this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
+          lastTime = System.currentTimeMillis();
+        }
+        break;
+      }
+
+      case 11: {
+        this.getSystems().manipulator.setGripStatus(true);
+        this.getSystems().manipulator.setIntakeSetPoint(0);
+        if (System.currentTimeMillis() - lastTime >= 555) {
+          this.getSystems().elevator.setElevatorSetPoint(.0625);
+          this.nextStep();
+        } else {
+          this.getSystems().elevator.setElevatorSetPoint(.5);
+        }
+        break;
+      }
+
+      case 12: {
+        this.getSystems().manipulator.setIntakeSetPoint(-1);
         break;
       }
 
