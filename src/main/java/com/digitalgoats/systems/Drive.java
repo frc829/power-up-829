@@ -2,6 +2,7 @@ package com.digitalgoats.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.digitalgoats.framework.ISystem;
@@ -16,8 +17,9 @@ public class Drive implements ISystem {
 
   // region Constants
 
-  public static final double COUNT_INCH = 45.2830188679243;
-  public static final double COUNT_FOOT = COUNT_INCH * 12;
+  public static final double COUNT_INCH_LOW = 43.64631578947368;
+  public static final double COUNT_INCH_HIGH = 36.99705014749263;
+
   public static final int ENC_T = 10;
   public static final int PID_SLOT = 0;
   public static final int PID_TIMEOUT = 10;
@@ -112,41 +114,11 @@ public class Drive implements ISystem {
 
   }
 
-  public void setCruiseVelocity(int sensorUnit) {
-    this.backLeft.configMotionCruiseVelocity(sensorUnit, PID_TIMEOUT);
-    this.backRight.configMotionCruiseVelocity(sensorUnit, PID_TIMEOUT);
-  }
-
-  public void changePeaks(double peak) {
-    this.backLeft.configPeakOutputForward(peak, PID_TIMEOUT);
-    this.backRight.configPeakOutputForward(peak, PID_TIMEOUT);
-    this.backLeft.configPeakOutputReverse(-peak, PID_TIMEOUT);
-    this.backRight.configPeakOutputReverse(-peak, PID_TIMEOUT);
-  }
-
   public void resetEncoders() {
 
     this.backLeft.setSelectedSensorPosition(0, PID_SLOT, PID_TIMEOUT);
     this.backRight.setSelectedSensorPosition(0, PID_SLOT, PID_TIMEOUT);
 
-  }
-
-  public boolean atTarget() {
-    return atTarget(Drive.COUNT_INCH);
-  }
-
-  public boolean atTarget(double threshold) {
-    double deltaLeft = Math.abs(this.getLeftSetPoint() - this.getLeftPosition());
-    double deltaRight = Math.abs(this.getRightSetPoint() - this.getRightPosition());
-    return deltaLeft <= threshold && deltaRight <= threshold;
-  }
-
-  public boolean atAngle(double angle, Gyro gyro) {
-    return atAngle(angle, gyro, 15);
-  }
-
-  public boolean atAngle(double angle, Gyro gyro, double tolerance) {
-    return Math.abs(Math.abs(gyro.getAngle()) - Math.abs(angle)) <= tolerance;
   }
 
   public double getLeftPosition() {
@@ -206,6 +178,8 @@ public class Drive implements ISystem {
 
   @Override
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
+
+    this.coastMode();
 
     this.setLeftSetPoint(convertStickValue(-driver.getAxis(LogitechAxis.LY)));
     this.setRightSetPoint(convertStickValue(-driver.getAxis(LogitechAxis.RY)));
@@ -282,6 +256,84 @@ public class Drive implements ISystem {
 
   public void setTransmission(Solenoid transmission) {
     this.transmission = transmission;
+  }
+
+  // endregion
+
+  // region Pretty
+
+  public void highTransmission() {
+    this.setTransmissionStatus(false);
+  }
+
+  public void lowTransmission() {
+    this.setTransmissionStatus(true);
+  }
+
+  public void drive(double speed) {
+    this.drive(speed, speed);
+  }
+
+  public void drive(double leftSpeed, double rightSpeed) {
+    this.setDriveControlMode(ControlMode.PercentOutput);
+    this.setLeftSetPoint(leftSpeed);
+    this.setRightSetPoint(rightSpeed);
+  }
+
+  public boolean turnAngle(double currentAngle, double desiredAngle, double turnSpeed) {
+    return this.turnAngle(currentAngle, desiredAngle, turnSpeed, 1.5);
+  }
+
+  public boolean turnAngle(double currentAngle, double desiredAngle, double turnSpeed, double tolerance) {
+    double deltaAngle = currentAngle - desiredAngle;
+    if (Math.abs(deltaAngle) <= tolerance) {
+      this.drive(0);
+      return true;
+    }
+    if (deltaAngle > 0) {
+      this.drive(-turnSpeed, turnSpeed);
+    } else {
+      this.drive(turnSpeed, -turnSpeed);
+    }
+    return false;
+  }
+
+  public boolean driveDistance(double goal, boolean feet) {
+    return this.driveDistance(goal, feet, 3);
+  }
+
+  public boolean driveDistance(double goal, boolean feet, double tolerance) {
+    double multiplier = this.isTransmissionStatus() ? Drive.COUNT_INCH_LOW : Drive.COUNT_INCH_HIGH;
+    goal *= feet ? multiplier * 12 : multiplier;
+    tolerance *= multiplier;
+    double position = (this.getLeftPosition() + this.getRightPosition())/2;
+    double deltaGoal = position - goal;
+    if (Math.abs(deltaGoal) <= tolerance) {
+      this.drive(0);
+      return true;
+    }
+    this.setDriveControlMode(ControlMode.MotionMagic);
+    this.setLeftSetPoint(goal);
+    this.setRightSetPoint(goal);
+    return false;
+  }
+
+  public void brakeMode() {
+    this.frontLeft.setNeutralMode(NeutralMode.Brake);
+    this.midLeft.setNeutralMode(NeutralMode.Brake);
+    this.backLeft.setNeutralMode(NeutralMode.Brake);
+    this.frontRight.setNeutralMode(NeutralMode.Brake);
+    this.midRight.setNeutralMode(NeutralMode.Brake);
+    this.backRight.setNeutralMode(NeutralMode.Brake);
+  }
+
+  public void coastMode() {
+    this.frontLeft.setNeutralMode(NeutralMode.Coast);
+    this.midLeft.setNeutralMode(NeutralMode.Coast);
+    this.backLeft.setNeutralMode(NeutralMode.Coast);
+    this.frontRight.setNeutralMode(NeutralMode.Coast);
+    this.midRight.setNeutralMode(NeutralMode.Coast);
+    this.backRight.setNeutralMode(NeutralMode.Coast);
   }
 
   // endregion

@@ -105,7 +105,7 @@ public class Manipulator implements ISystem {
     }
 
     if (this.canShiftPivot()) {
-      if (operator.getButton(LogitechButton.BACK) && operator.getButton(LogitechButton.START)) {
+      if (operator.getButton(LogitechButton.RB)) {
         this.setPivotPosition(PivotPosition.UP);
         this.setPivotTime(System.currentTimeMillis());
       } else if (operator.getButton(LogitechButton.Y)) {
