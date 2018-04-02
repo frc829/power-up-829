@@ -22,7 +22,6 @@ public class AutoGroup {
     this.getAutos().add(new LeftAuto(systems));
     this.getAutos().add(new RightAuto(systems));
     this.getAutos().add(new DriveForwardAuto(systems));
-    this.getAutos().add(new MiddleAltAuto(systems));
   }
 
   public void autoInit() {

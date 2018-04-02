@@ -30,7 +30,7 @@ public class LeftAuto extends Auto {
     SmartDashboard.putNumber("Intake Current", this.getSystems().manipulator.getIntakeCurrent());
     this.getSystems().drive.setCruiseVelocity(9000);
     if (MatchData.getOwnedSide(GameFeature.SCALE) == OwnedSide.LEFT) {
-      ownSide(16.9, 50, 0, true);
+      ownSide(19.5, 30, 0, true);
     } else if (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT) {
       ownSide(10, 90, 1.2, false);
       copCube(-1, 15, 5.125, 85, 4.625, 170, .25);

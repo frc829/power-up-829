@@ -22,7 +22,7 @@ import openrio.powerup.MatchData.OwnedSide;
 
 public class MiddleAuto extends Auto {
 
-  double angle = 0, distance = 0;
+  double angle = 0, distance = 0, startAngle = 0;
   long lastTime = 0;
   int step = 0;
 
@@ -40,8 +40,9 @@ public class MiddleAuto extends Auto {
 
       // Set drive to go forward a foot
       case 0: {
-        angle = MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT ? -35 : 29;
-        distance = MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT ? 8 : 8;
+        angle = this.getSystems().gyro.getAngle() + (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT ? -35 : 29);
+        distance = MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT ? 7.25 : 7.25;
+        startAngle = this.getSystems().gyro.getAngle();
         this.getSystems().manipulator.setIntakeSetPoint(0);
         this.getSystems().drive.resetEncoders();
         this.getSystems().drive.setTransmissionStatus(true);
@@ -73,11 +74,11 @@ public class MiddleAuto extends Auto {
           step++;
         } else {
           if (this.getSystems().gyro.getAngle() < angle) {
-            this.getSystems().drive.setLeftSetPoint(.5);
-            this.getSystems().drive.setRightSetPoint(-.5);
+            this.getSystems().drive.setLeftSetPoint(.625);
+            this.getSystems().drive.setRightSetPoint(-.625);
           } else {
-            this.getSystems().drive.setLeftSetPoint(-.5);
-            this.getSystems().drive.setRightSetPoint(.5);
+            this.getSystems().drive.setLeftSetPoint(-.625);
+            this.getSystems().drive.setRightSetPoint(.625);
           }
         }
         break;
@@ -85,7 +86,7 @@ public class MiddleAuto extends Auto {
 
       // Lift elevator for set time
       case 3: {
-        if (this.getDeltaTime() >= 555) {
+        if (this.getDeltaTime() >= 750) {
           this.getSystems().elevator.setElevatorSetPoint(.0625);
           this.getSystems().drive.resetEncoders();
           step++;
@@ -98,6 +99,7 @@ public class MiddleAuto extends Auto {
 
       // Tell robot to drive selected distance
       case 4: {
+        this.getSystems().manipulator.setPivotPosition(PivotPosition.MID);
         this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
         this.getSystems().drive.setLeftSetPoint(distance * Drive.COUNT_FOOT);
         this.getSystems().drive.setRightSetPoint(distance * Drive.COUNT_FOOT);
@@ -112,6 +114,7 @@ public class MiddleAuto extends Auto {
           this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
           this.getSystems().drive.setLeftSetPoint(0);
           this.getSystems().drive.setRightSetPoint(0);
+          angle = (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.RIGHT) ? 5 : 0;
           step++;
         }
         break;
@@ -119,19 +122,19 @@ public class MiddleAuto extends Auto {
 
       // Drive back to angle 0
       case 6: {
-        if (this.getSystems().drive.atAngle(0, this.getSystems().gyro)) {
+        if (this.getSystems().drive.atAngle(angle, this.getSystems().gyro)) {
           this.getSystems().drive.setLeftSetPoint(0);
           this.getSystems().drive.setRightSetPoint(0);
           this.getSystems().manipulator.setPivotPosition(PivotPosition.DOWN);
           lastTime = System.currentTimeMillis();
           step++;
         } else {
-          if (this.getSystems().gyro.getAngle() < (angle < 0 ? -15 : 15)) {
-            this.getSystems().drive.setLeftSetPoint(.5);
-            this.getSystems().drive.setRightSetPoint(-.5);
+          if (this.getSystems().gyro.getAngle() < angle) {
+            this.getSystems().drive.setLeftSetPoint(.625);
+            this.getSystems().drive.setRightSetPoint(-.625);
           } else {
-            this.getSystems().drive.setLeftSetPoint(-.5);
-            this.getSystems().drive.setRightSetPoint(.5);
+            this.getSystems().drive.setLeftSetPoint(-.625);
+            this.getSystems().drive.setRightSetPoint(.625);
           }
         }
         break;
@@ -139,20 +142,22 @@ public class MiddleAuto extends Auto {
 
       // Spit and stop grip while driving forward
       case 7: {
-        if (System.currentTimeMillis() - lastTime >= 2000) {
+        if (System.currentTimeMillis() - lastTime >= 2500) {
           this.getSystems().manipulator.setIntakeSetPoint(0);
           this.getSystems().manipulator.setPivotPosition(PivotPosition.DOWN);
+          this.getSystems().drive.setLeftSetPoint(0);
+          this.getSystems().drive.setRightSetPoint(0);
           step++;
-        } else if (System.currentTimeMillis() - lastTime >= 1000) {
+        } else if (System.currentTimeMillis() - lastTime >= 1500) {
           this.getSystems().drive.setLeftSetPoint(-.25);
           this.getSystems().drive.setRightSetPoint(-.25);
-        } else if (System.currentTimeMillis() - lastTime >= 500) {
+        } else if (System.currentTimeMillis() - lastTime >= 1000) {
           this.getSystems().manipulator.setIntakeSetPoint(-1);
           this.getSystems().manipulator.setGripStatus(false);
           this.getSystems().manipulator.setPivotPosition(PivotPosition.MID);
         } else {
-          this.getSystems().drive.setLeftSetPoint(.5);
-          this.getSystems().drive.setRightSetPoint(.5);
+          this.getSystems().drive.setLeftSetPoint(.75);
+          this.getSystems().drive.setRightSetPoint(.75);
         }
         break;
       }
@@ -177,7 +182,7 @@ public class MiddleAuto extends Auto {
           this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
           this.getSystems().drive.setLeftSetPoint(0);
           this.getSystems().drive.setRightSetPoint(0);
-          angle = angle < 0 ? 25 : -25;
+          angle = this.getSystems().gyro.getAngle() + (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT ? 22.5 : -25);
           step++;
         }
         break;
@@ -188,17 +193,17 @@ public class MiddleAuto extends Auto {
           this.getSystems().drive.resetEncoders();
           this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
           this.getSystems().drive.changePeaks(.75);
-          this.getSystems().drive.setLeftSetPoint(5.75 * Drive.COUNT_FOOT);
-          this.getSystems().drive.setRightSetPoint(5.75 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setLeftSetPoint(6.75 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(6.75 * Drive.COUNT_FOOT);
           lastTime = System.currentTimeMillis();
           step++;
         } else {
           if (this.getSystems().gyro.getAngle() < angle) {
-            this.getSystems().drive.setLeftSetPoint(.45);
-            this.getSystems().drive.setRightSetPoint(-.45);
+            this.getSystems().drive.setLeftSetPoint(.625);
+            this.getSystems().drive.setRightSetPoint(-.625);
           } else {
-            this.getSystems().drive.setLeftSetPoint(-.45);
-            this.getSystems().drive.setRightSetPoint(.45);
+            this.getSystems().drive.setLeftSetPoint(-.625);
+            this.getSystems().drive.setRightSetPoint(.625);
           }
         }
         break;
@@ -207,19 +212,71 @@ public class MiddleAuto extends Auto {
       case 11: {
         this.getSystems().manipulator.setIntakeSetPoint(1);
         this.getSystems().manipulator.setGripStatus(false);
-        if (this.getSystems().drive.atTarget()) {
-          this.getSystems().manipulator.setIntakeSetPoint(0);
+        System.out.println(this.getSystems().manipulator.getIntakeCurrent());
+        if (this.getSystems().drive.atTarget() ||
+            (this.getSystems().manipulator.getIntakeCurrent() >= 10 &&
+                System.currentTimeMillis() - lastTime >= 2500
+            )) {
           this.getSystems().manipulator.setGripStatus(true);
           this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
           this.getSystems().drive.resetEncoders();
-          this.getSystems().drive.setLeftSetPoint(-Drive.COUNT_FOOT);
-          this.getSystems().drive.setRightSetPoint(-Drive.COUNT_FOOT);
+          this.getSystems().drive.setLeftSetPoint(-4.45 * Drive.COUNT_FOOT);
+          this.getSystems().drive.setRightSetPoint(-4.45 * Drive.COUNT_FOOT);
+          lastTime = System.currentTimeMillis();
           step++;
         }
         break;
       }
 
       case 12: {
+        if (this.getDeltaTime() >= 750) {
+          this.getSystems().elevator.setElevatorSetPoint(.0625);
+          if (this.getSystems().drive.atTarget()) {
+            this.getSystems().drive.setDriveControlMode(ControlMode.PercentOutput);
+            this.getSystems().drive.setLeftSetPoint(0);
+            this.getSystems().drive.setRightSetPoint(0);
+            angle = this.getSystems().gyro.getAngle() + (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT ? -25 : 25);
+            step++;
+          }
+        } else if (this.getDeltaTime() >= 500) {
+          this.getSystems().elevator.setElevatorSetPoint(1);
+        } else if (this.getDeltaTime() >= 250){
+          this.getSystems().elevator.setElevatorSetPoint(.75);
+        } else {
+          this.getSystems().elevator.setElevatorSetPoint(.5);
+        }
+        break;
+      }
+
+      case 13: {
+        if (this.getSystems().drive.atAngle(angle, this.getSystems().gyro, 2.5)) {
+          this.getSystems().drive.resetEncoders();
+          this.getSystems().drive.setDriveControlMode(ControlMode.MotionMagic);
+          if (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == OwnedSide.LEFT) {
+            this.getSystems().drive.setLeftSetPoint(5.75 * Drive.COUNT_FOOT);
+            this.getSystems().drive.setRightSetPoint(5.75 * Drive.COUNT_FOOT);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(5.95 * Drive.COUNT_FOOT);
+            this.getSystems().drive.setRightSetPoint(5.95 * Drive.COUNT_FOOT);
+          }
+          this.getSystems().manipulator.setPivotPosition(PivotPosition.MID);
+          step++;
+        } else {
+          if (this.getSystems().gyro.getAngle() < angle) {
+            this.getSystems().drive.setLeftSetPoint(.625);
+            this.getSystems().drive.setRightSetPoint(-.625);
+          } else {
+            this.getSystems().drive.setLeftSetPoint(-.625);
+            this.getSystems().drive.setRightSetPoint(.625);
+          }
+        }
+        break;
+      }
+
+      case 14: {
+        if (this.getSystems().drive.atTarget()) {
+          this.getSystems().manipulator.setIntakeSetPoint(-1);
+        }
         break;
       }
 

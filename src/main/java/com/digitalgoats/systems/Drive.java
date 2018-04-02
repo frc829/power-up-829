@@ -16,14 +16,9 @@ public class Drive implements ISystem {
 
   // region Constants
 
-  public static final double WHEEL_DIAMETER = 6;
-  public static final double CIRCUMFRENCE = WHEEL_DIAMETER * Math.PI;
-  public static final int ENC_COUNTS = 1440 * 3;
   public static final double COUNT_INCH = 45.2830188679243;
   public static final double COUNT_FOOT = COUNT_INCH * 12;
   public static final int ENC_T = 10;
-  public static final int MAX_V_L = 3000;
-  public static final int MAX_V_R = 3000;
   public static final int PID_SLOT = 0;
   public static final int PID_TIMEOUT = 10;
   public static final long TRANS_DELAY = 500;
