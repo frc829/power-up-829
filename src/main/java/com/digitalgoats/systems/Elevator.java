@@ -158,4 +158,37 @@ public class Elevator implements ISystem {
 
   // endregion
 
+  public void goUp(double speed) {
+    this.setElevatorControlMode(ControlMode.PercentOutput);
+    this.setElevatorSetPoint(speed);
+  }
+
+  public void goDown(double speed) {
+    this.setElevatorControlMode(ControlMode.PercentOutput);
+    this.setElevatorSetPoint(-speed);
+  }
+
+  public void stop() {
+    this.setElevatorControlMode(ControlMode.PercentOutput);
+    this.setElevatorSetPoint(.0625);
+  }
+
+  public boolean goTop() {
+    if (this.getForwardSwitch()) {
+      this.stop();
+      return true;
+    }
+    this.goUp(1);
+    return false;
+  }
+
+  public boolean goDown() {
+    if (this.getReverseSwitch()) {
+      this.stop();
+      return true;
+    }
+    this.goDown(1);
+    return false;
+  }
+
 }
