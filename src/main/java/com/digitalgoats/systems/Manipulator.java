@@ -27,6 +27,8 @@ public class Manipulator implements ISystem {
   private PivotPosition pivotPosition;
 
   // endregion
+  boolean spitting = false;
+  long spitTime = System.currentTimeMillis();
 
   // region Objects
 
@@ -87,15 +89,28 @@ public class Manipulator implements ISystem {
   @Override
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
 
-    if (operator.getButton(LogitechButton.A)) {
-      this.setIntakeSetPoint(-1);
-    } else if (operator.getButton(LogitechButton.B)) {
-      this.setIntakeSetPoint(1);
-    } else {
-      if (Math.abs(operator.getAxis(LogitechAxis.RY)) >= .15) {
-        this.setIntakeSetPoint(-Math.abs(operator.getAxis(LogitechAxis.RY)));
+    if (!spitting) {
+      if (operator.getButton(LogitechButton.A)) {
+        this.setIntakeSetPoint(-1);
+      } else if (operator.getButton(LogitechButton.B)) {
+        this.setIntakeSetPoint(1);
+      } else if (operator.getAxis(LogitechAxis.RT) >= .95) {
+        if (System.currentTimeMillis() - spitTime >= 1000) {
+          spitting = true;
+          spitTime = System.currentTimeMillis();
+        }
       } else {
+        if (Math.abs(operator.getAxis(LogitechAxis.RY)) >= .15) {
+          this.setIntakeSetPoint(-Math.abs(operator.getAxis(LogitechAxis.RY)));
+        } else {
+          this.setIntakeSetPoint(0);
+        }
+      }
+    } else {
+      this.setIntakeSetPoint(-.375);
+      if (System.currentTimeMillis() - spitTime >= 1000) {
         this.setIntakeSetPoint(0);
+        spitting = false;
       }
     }
 
@@ -105,7 +120,7 @@ public class Manipulator implements ISystem {
     }
 
     if (this.canShiftPivot()) {
-      if (operator.getButton(LogitechButton.BACK) && operator.getButton(LogitechButton.START)) {
+      if (operator.getButton(LogitechButton.RB)) {
         this.setPivotPosition(PivotPosition.UP);
         this.setPivotTime(System.currentTimeMillis());
       } else if (operator.getButton(LogitechButton.Y)) {
@@ -185,5 +200,49 @@ public class Manipulator implements ISystem {
   }
 
   // endregion
+
+  public void openManipulator() {
+    this.setGripStatus(false);
+  }
+
+  public void closeManipulator() {
+    this.setGripStatus(true);
+  }
+
+  public void pivotUp() {
+    this.setPivotPosition(PivotPosition.UP);
+  }
+
+  public void pivotDown() {
+    this.setPivotPosition(PivotPosition.DOWN);
+  }
+
+  public void pivotMid() {
+    this.setPivotPosition(PivotPosition.MID);
+  }
+
+  public void intakeOut(double speed) {
+    this.setIntakeSetPoint(-speed);
+  }
+
+  public void intakeIn(double speed) {
+    this.setIntakeSetPoint(speed);
+  }
+
+  public boolean suckCube(double currentLimit) {
+    if (this.getIntakeCurrent() >= currentLimit) {
+      this.setIntakeSetPoint(0);
+      this.closeManipulator();
+      return true;
+    }
+    this.openManipulator();
+    this.intakeIn(1);
+    return false;
+  }
+
+  public void spitCube() {
+    this.closeManipulator();
+    this.intakeOut(1);
+  }
 
 }

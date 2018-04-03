@@ -44,8 +44,8 @@ public class Elevator implements ISystem {
     this.elevatorMaster = new TalonSRX(SystemMap.Elevator.ELEVATOR_MASTER);
     this.elevatorSlave = new TalonSRX(SystemMap.Elevator.ELEVATOR_SLAVE);
 
-    this.setupEncoders();
-    this.resetEncoders();
+    //this.setupEncoders();
+    //this.resetEncoders();
 
   }
 
@@ -81,7 +81,7 @@ public class Elevator implements ISystem {
   }
 
   public double convertStickValue(double value) {
-    return (.65*Math.pow(value, 3)) + (.35*value);
+    return value;
   }
 
   // endregion
@@ -100,8 +100,8 @@ public class Elevator implements ISystem {
 
     SmartDashboard.putBoolean("Elevator: Elevator Forward", this.getForwardSwitch());
     SmartDashboard.putBoolean("Elevator: Elevator Reverse", this.getReverseSwitch());
-    SmartDashboard.putNumber("Elevator: Elevator Position", this.getElevatorPosition());
-    SmartDashboard.putNumber("Elevator: Elevator Velocity", this.getElevatorVelocity());
+    //SmartDashboard.putNumber("Elevator: Elevator Position", this.getElevatorPosition());
+    //SmartDashboard.putNumber("Elevator: Elevator Velocity", this.getElevatorVelocity());
 
   }
 
@@ -116,9 +116,9 @@ public class Elevator implements ISystem {
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
 
     if (Math.abs(convertStickValue(-operator.getAxis(LogitechAxis.LY))) >= .1) {
-      this.setElevatorSetPoint(convertStickValue(-operator.getAxis(LogitechAxis.LY)) * .85);
+      this.setElevatorSetPoint(-operator.getAxis(LogitechAxis.LY));
     } else {
-      this.setElevatorSetPoint(.075);
+      this.setElevatorSetPoint(.0625);
     }
 
   }
@@ -127,9 +127,9 @@ public class Elevator implements ISystem {
   public void update() {
 
     if (this.getElevatorSetPoint() > 0 && this.elevatorMaster.getSensorCollection().isFwdLimitSwitchClosed()) {
-      this.setElevatorSetPoint(.075);
+      this.setElevatorSetPoint(.0625);
     } else if (this.getElevatorSetPoint() < 0 && this.elevatorMaster.getSensorCollection().isRevLimitSwitchClosed()) {
-      this.setElevatorSetPoint(.075);
+      this.setElevatorSetPoint(.0625);
     }
     this.elevatorMaster.set(this.getElevatorControlMode(), this.getElevatorSetPoint());
     this.elevatorSlave.follow(this.elevatorMaster);
@@ -157,5 +157,38 @@ public class Elevator implements ISystem {
   }
 
   // endregion
+
+  public void goUp(double speed) {
+    this.setElevatorControlMode(ControlMode.PercentOutput);
+    this.setElevatorSetPoint(speed);
+  }
+
+  public void goDown(double speed) {
+    this.setElevatorControlMode(ControlMode.PercentOutput);
+    this.setElevatorSetPoint(-speed);
+  }
+
+  public void stop() {
+    this.setElevatorControlMode(ControlMode.PercentOutput);
+    this.setElevatorSetPoint(.0625);
+  }
+
+  public boolean goTop() {
+    if (this.getForwardSwitch()) {
+      this.stop();
+      return true;
+    }
+    this.goUp(1);
+    return false;
+  }
+
+  public boolean goDown() {
+    if (this.getReverseSwitch()) {
+      this.stop();
+      return true;
+    }
+    this.goDown(1);
+    return false;
+  }
 
 }

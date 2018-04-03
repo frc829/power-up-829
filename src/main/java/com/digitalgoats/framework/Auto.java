@@ -1,6 +1,7 @@
 package com.digitalgoats.framework;
 
 import com.digitalgoats.robot.SystemGroup;
+import com.digitalgoats.systems.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 /**
@@ -8,12 +9,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
  */
 public abstract class Auto {
 
+  private long lastTime;
   /** The current step for autonomous */
   private int step;
   /** The name for the autonomous */
   private String name = "";
   /** The systems available during autonomous */
   private SystemGroup systems;
+
+  protected Drive drive;
+  protected Elevator elevator;
+  protected Gyro gyro;
+  protected Manipulator manipulator;
 
   /**
    * Create an autonomous
@@ -23,9 +30,14 @@ public abstract class Auto {
    *  The systems available
    */
   public Auto(String name, SystemGroup systems) {
+    this.setLastTime(System.currentTimeMillis());
     this.setStep(0);
     this.setName(name);
     this.setSystems(systems);
+    drive = this.getSystems().drive;
+    elevator = this.getSystems().elevator;
+    gyro = this.getSystems().gyro;
+    manipulator = this.getSystems().manipulator;
   }
 
   /**
@@ -47,12 +59,25 @@ public abstract class Auto {
    */
   public void nextStep() {
     this.setStep(this.getStep() + 1);
+    this.setLastTime(System.currentTimeMillis());
   }
 
   /**
    * Execute the selected autonomous
    */
   public abstract void execute();
+
+  public long getLastTime() {
+    return this.lastTime;
+  }
+
+  public void setLastTime(long lastTime) {
+    this.lastTime = lastTime;
+  }
+
+  public long getDeltaTime() {
+    return System.currentTimeMillis() - this.getLastTime();
+  }
 
   /** Get the current step */
   public int getStep() {

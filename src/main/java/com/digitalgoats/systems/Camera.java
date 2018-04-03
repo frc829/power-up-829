@@ -16,7 +16,7 @@ public class Camera implements ISystem {
   public Camera() {
 
     this.setCamera(CameraServer.getInstance().startAutomaticCapture());
-    this.getCamera().setVideoMode(PixelFormat.kYUYV, 320, 240, 15);
+    this.getCamera().setVideoMode(PixelFormat.kYUYV, 160, 120, 15);
 
   }
 

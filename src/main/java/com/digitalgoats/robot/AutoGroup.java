@@ -1,13 +1,12 @@
 package com.digitalgoats.robot;
 
 import com.digitalgoats.autos.DriveForwardAuto;
-import com.digitalgoats.autos.LeftAuto;
-import com.digitalgoats.autos.MiddleAuto;
-import com.digitalgoats.autos.RightAuto;
+import com.digitalgoats.autos.SideAuto;
 import com.digitalgoats.framework.Auto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
+import openrio.powerup.MatchData.OwnedSide;
 
 public class AutoGroup {
 
@@ -18,11 +17,9 @@ public class AutoGroup {
   public AutoGroup(SystemGroup systems) {
     this.setAutos(new ArrayList<Auto>());
     this.setAutoChooser(new SendableChooser<String>());
-    this.getAutos().add(new MiddleAuto(systems));
-    this.getAutos().add(new LeftAuto(systems));
-    this.getAutos().add(new RightAuto(systems));
     this.getAutos().add(new DriveForwardAuto(systems));
-    this.getAutos().add(new MiddleAltAuto(systems));
+    this.getAutos().add(new SideAuto("Left Auto", systems, OwnedSide.LEFT));
+    this.getAutos().add(new SideAuto("Right Auto", systems, OwnedSide.RIGHT));
   }
 
   public void autoInit() {
