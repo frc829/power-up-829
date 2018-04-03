@@ -336,6 +336,13 @@ public class Drive implements ISystem {
     this.backRight.setNeutralMode(NeutralMode.Coast);
   }
 
+  public void changePeaks(double peak) {
+    this.backLeft.configPeakOutputReverse(-peak, PID_TIMEOUT);
+    this.backLeft.configPeakOutputForward(peak, PID_TIMEOUT);
+    this.backRight.configPeakOutputReverse(-peak, PID_TIMEOUT);
+    this.backRight.configPeakOutputForward(peak, PID_TIMEOUT);
+  }
+
   // endregion
 
 }

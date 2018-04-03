@@ -225,4 +225,9 @@ public class Manipulator implements ISystem {
     return false;
   }
 
+  public void spitCube() {
+    this.closeManipulator();
+    this.intakeOut(1);
+  }
+
 }

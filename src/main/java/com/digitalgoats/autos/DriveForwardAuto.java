@@ -18,7 +18,6 @@ public class DriveForwardAuto extends Auto {
         drive.resetEncoders();
         drive.lowTransmission();
         drive.brakeMode();
-        drive.driveDistance(11, true);
         this.nextStep();
         break;
       }
