@@ -27,6 +27,8 @@ public class Manipulator implements ISystem {
   private PivotPosition pivotPosition;
 
   // endregion
+  boolean spitting = false;
+  long spitTime = System.currentTimeMillis();
 
   // region Objects
 
@@ -87,15 +89,28 @@ public class Manipulator implements ISystem {
   @Override
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
 
-    if (operator.getButton(LogitechButton.A)) {
-      this.setIntakeSetPoint(-1);
-    } else if (operator.getButton(LogitechButton.B)) {
-      this.setIntakeSetPoint(1);
-    } else {
-      if (Math.abs(operator.getAxis(LogitechAxis.RY)) >= .15) {
-        this.setIntakeSetPoint(-Math.abs(operator.getAxis(LogitechAxis.RY)));
+    if (!spitting) {
+      if (operator.getButton(LogitechButton.A)) {
+        this.setIntakeSetPoint(-1);
+      } else if (operator.getButton(LogitechButton.B)) {
+        this.setIntakeSetPoint(1);
+      } else if (operator.getAxis(LogitechAxis.RT) >= .95) {
+        if (System.currentTimeMillis() - spitTime >= 1000) {
+          spitting = true;
+          spitTime = System.currentTimeMillis();
+        }
       } else {
+        if (Math.abs(operator.getAxis(LogitechAxis.RY)) >= .15) {
+          this.setIntakeSetPoint(-Math.abs(operator.getAxis(LogitechAxis.RY)));
+        } else {
+          this.setIntakeSetPoint(0);
+        }
+      }
+    } else {
+      this.setIntakeSetPoint(-.375);
+      if (System.currentTimeMillis() - spitTime >= 1000) {
         this.setIntakeSetPoint(0);
+        spitting = false;
       }
     }
 
