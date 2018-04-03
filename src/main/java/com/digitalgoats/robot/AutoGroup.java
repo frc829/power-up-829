@@ -1,8 +1,6 @@
 package com.digitalgoats.robot;
 
 import com.digitalgoats.autos.DriveForwardAuto;
-import com.digitalgoats.autos.LeftAuto;
-import com.digitalgoats.autos.RightAuto;
 import com.digitalgoats.framework.Auto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,8 +16,6 @@ public class AutoGroup {
     this.setAutos(new ArrayList<Auto>());
     this.setAutoChooser(new SendableChooser<String>());
     this.getAutos().add(new DriveForwardAuto(systems));
-    this.getAutos().add(new LeftAuto(systems));
-    this.getAutos().add(new RightAuto(systems));
   }
 
   public void autoInit() {
