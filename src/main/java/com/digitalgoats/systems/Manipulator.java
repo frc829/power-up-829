@@ -241,8 +241,12 @@ public class Manipulator implements ISystem {
   }
 
   public void spitCube() {
+    this.spitCube(1);
+  }
+
+  public void spitCube(double speed) {
     this.closeManipulator();
-    this.intakeOut(1);
+    this.intakeOut(speed);
   }
 
 }

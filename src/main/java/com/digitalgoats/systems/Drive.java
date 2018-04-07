@@ -163,7 +163,7 @@ public class Drive implements ISystem {
     SmartDashboard.putNumber("Drive: Left Velocity", this.getLeftVelocity());
     SmartDashboard.putNumber("Drive: Right Position", this.getRightPosition());
     SmartDashboard.putNumber("Drive: Right Velocity", this.getRightVelocity());
-    SmartDashboard.putBoolean("Drive: Transmission", this.isTransmissionStatus());
+    SmartDashboard.putBoolean("Drive: Transmission", !this.isTransmissionStatus());
 
   }
 
@@ -179,6 +179,7 @@ public class Drive implements ISystem {
   @Override
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
 
+    this.changePeaks(1);
     this.coastMode();
 
     this.setLeftSetPoint(convertStickValue(-driver.getAxis(LogitechAxis.LY)));

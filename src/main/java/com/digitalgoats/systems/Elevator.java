@@ -173,21 +173,29 @@ public class Elevator implements ISystem {
     this.setElevatorSetPoint(.0625);
   }
 
-  public boolean goTop() {
+  public boolean goTop(double speed) {
     if (this.getForwardSwitch()) {
       this.stop();
       return true;
     }
-    this.goUp(1);
+    this.goUp(speed);
     return false;
   }
 
-  public boolean goDown() {
+  public boolean goTop() {
+    return this.goTop(1);
+  }
+
+  public boolean goBot() {
+    return this.goBot(1);
+  }
+
+  public boolean goBot(double speed) {
     if (this.getReverseSwitch()) {
       this.stop();
       return true;
     }
-    this.goDown(1);
+    this.goDown(speed);
     return false;
   }
 
