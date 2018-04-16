@@ -1,19 +1,18 @@
 package com.digitalgoats.autos;
 
 import com.digitalgoats.framework.Auto;
-import com.digitalgoats.robot.Robot;
 import com.digitalgoats.robot.SystemGroup;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
 import openrio.powerup.MatchData.OwnedSide;
 
-public class SideAuto extends Auto {
+public class SideNoCrossAuto extends Auto {
 
   double startAngle, multiplier;
   boolean stepActive;
   OwnedSide side;
 
-  public SideAuto(String name, SystemGroup systemGroup, OwnedSide side) {
+  public SideNoCrossAuto(String name, SystemGroup systemGroup, OwnedSide side) {
     super(name, systemGroup);
     this.side = side;
     this.multiplier = side == OwnedSide.LEFT ? 1 : -1;
@@ -64,7 +63,6 @@ public class SideAuto extends Auto {
           if (this.getDeltaTime() >= 1000) {
             manipulator.setIntakeSetPoint(0);
             manipulator.openManipulator();
-            drive.resetEncoders();
             this.nextStep();
           }
           break;
@@ -146,128 +144,110 @@ public class SideAuto extends Auto {
     } // endregion
     // region Other Side
     else {
-      switch (this.getStep()) {
-        // region Setup
-        case 0: {
-          drive.resetEncoders();
-          drive.changePeaks(1);
-          drive.highTransmission();
-          drive.brakeMode();
-          manipulator.closeManipulator();
-          manipulator.pivotUp();
-          this.nextStep();
-          break;
-        } // endregion
-        // region Step 1: Drive forward
-        case 1: {
-          if (drive.driveDistance(238, false)) {
-            startAngle = gyro.getAngle();
-            stepActive = false;
+      // region Own Switch
+      if (MatchData.getOwnedSide(GameFeature.SWITCH_NEAR) == side) {
+        switch (this.getStep()) {
+          // region Setup
+          case 0: {
+            drive.resetEncoders();
+            drive.highTransmission();
+            drive.brakeMode();
             this.nextStep();
-          }
-          break;
-        } // endregion
-        // region Step 2: Turn Right 90
-        case 2: {
-
-            if (this.getDeltaTime() >= 500 || stepActive) {
-              stepActive = true;
-              if (drive.turnAngle(gyro.getAngle(), startAngle + (multiplier * 90), .45, 10)) {
-                if (this.getDeltaTime() > 250) {
-                  drive.resetEncoders();
-                  this.nextStep();
-                }
-              } else {
-                this.setLastTime(System.currentTimeMillis());
-              }
+            break;
+          } // endregion
+          // region Step 1: Wait
+          case 1: {
+            if (this.getDeltaTime() >= 500) {
+              this.nextStep();
             }
-
-          break;
-        } // endregion
-        // region Step 3: Drive Forward
-        case 3: {
-          if (this.getDeltaTime() >= 500) {
-            if (drive.driveDistance(240, false)) {
+            break;
+          } // endregion
+          // region Step 2: Drive toward switch
+          case 2: {
+            if (drive.driveDistance(12, true)) {
               startAngle = gyro.getAngle();
-              drive.drive(0);
               this.nextStep();
             }
-          }
-          break;
-        } // endregion
-        //region Step 4: Turn Left to Angle
-        case 4: {
-          if (this.getDeltaTime() >= 500) {
-            if (drive.turnAngle(gyro.getAngle(), startAngle + (multiplier * -120), .5, 10)) {
+            break;
+          } // endregion
+          // region Step 3: Turn 90
+          case 3: {
+            if (drive.turnAngle(gyro.getAngle(), startAngle + (multiplier * 85), .45, 7.5)) {
               this.nextStep();
             }
-          }
-          break;
-        } // endregion
-        // region Step 5: Lift up and pivot mid
-        case 5: {
-          manipulator.pivotMid();
-          if (elevator.goTop(.75) || this.getDeltaTime() >= 2000) {
+            break;
+          } // endregion
+          // region Step 4: Lift Elevator
+          case 4: {
+            manipulator.pivotMid();
+            if (this.getDeltaTime() >= 750) {
+              elevator.stop();
+              drive.resetEncoders();
+              this.nextStep();
+            } else {
+              elevator.goUp(.5);
+            }
+            break;
+          } // endregion
+          // region Step 5: Go forward
+          case 5: {
+            if (drive.driveDistance(30, false)) {
+              this.nextStep();
+            }
+            break;
+          } // endregion
+          // region Step 6: Spit
+          case 6: {
+            manipulator.spitCube();
+            if (this.getDeltaTime() >= 500) {
+              manipulator.intakeIn(0);
+              drive.resetEncoders();
+              this.nextStep();
+            }
+            break;
+          } // endregion
+          // region Step 7: Back up
+          case 7: {
+            if (drive.driveDistance(-3, true)) {
+              this.nextStep();
+            }
+            break;
+          } // endregion
+          // region Step 8: Turn back 90
+          case 8: {
+            if (drive.turnAngle(gyro.getAngle(), startAngle, .45)) {
+              drive.resetEncoders();
+              this.nextStep();
+            }
+            break;
+          } // endregion
+          // region Step 9: Drive forward
+          case 9: {
+            if (drive.driveDistance(4, true)) {
+              this.nextStep();
+            }
+            break;
+          } // endregion
+        }
+      } // endregion
+      // region No Switch
+      else {
+        switch (this.getStep()) {
+          // region Setup
+          case 0: {
+            drive.highTransmission();
+            drive.brakeMode();
             drive.resetEncoders();
-            drive.lowTransmission();
-            drive.changePeaks(.5);
             this.nextStep();
-          }
-          break;
-        } // endregion
-        // region Step 6: Drive forward
-        case 6: {
-          if (this.getDeltaTime() >= 250) {
-            if (drive.driveDistance(60, false)) {
-              this.nextStep();
-            }
-          }
-          break;
-        } // endregion
-        // region Step 7: Spit cube
-        case 7: {
-          manipulator.spitCube(1);
-          if (this.getDeltaTime() >= 1000) {
-            manipulator.setIntakeSetPoint(0);
-            drive.resetEncoders();
-            this.nextStep();
-          }
-          break;
-        } // endregion
-        // region Step 8: Back up
-        case 8: {
-          if (drive.driveDistance(-42, false)) {
-            startAngle = gyro.getAngle();
-            this.nextStep();
-          }
-          break;
-        } // endregion
-        // region Step 9: Bring lift down and pivot down
-        case 9: {
-          manipulator.pivotDown();
-          if (elevator.goBot(.75)) {
-            this.nextStep();
-          }
-          break;
-        } // endregion
-        // region Step 10: Turn around
-        case 10: {
-          if (drive.turnAngle(gyro.getAngle(), startAngle - (multiplier * 90), .45)) {
-            this.nextStep();
-          }
-          break;
-        } // endregion
-        // region Step 11: Grab cube and drive
-        case 11: {
-          manipulator.suckCube(1000);
-          if (drive.driveDistance(18, false) && this.getDeltaTime() >= 1500) {
-            manipulator.closeManipulator();
-            manipulator.intakeIn(0);
-            this.nextStep();
-          }
-          break;
-        } // endregion
-      }
+            break;
+          } // endregion
+          // region Step 1: Wait for shift
+          case 1: {
+            drive.driveDistance(240, false);
+            break;
+          } // endregion
+        }
+      } // endregion
     }
 
   }

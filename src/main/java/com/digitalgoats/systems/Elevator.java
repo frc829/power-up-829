@@ -170,7 +170,7 @@ public class Elevator implements ISystem {
 
   public void stop() {
     this.setElevatorControlMode(ControlMode.PercentOutput);
-    this.setElevatorSetPoint(.0625);
+    this.setElevatorSetPoint(.075);
   }
 
   public boolean goTop(double speed) {

@@ -17,6 +17,8 @@ public class Drive implements ISystem {
 
   // region Constants
 
+  public boolean cross = false;
+
   public static final double COUNT_INCH_LOW = 43.64631578947368;
   public static final double COUNT_INCH_HIGH = 36.99705014749263;
 
