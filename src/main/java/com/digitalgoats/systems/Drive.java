@@ -17,6 +17,8 @@ public class Drive implements ISystem {
 
   // region Constants
 
+  public boolean cross = false;
+
   public static final double COUNT_INCH_LOW = 43.64631578947368;
   public static final double COUNT_INCH_HIGH = 36.99705014749263;
 
@@ -163,7 +165,7 @@ public class Drive implements ISystem {
     SmartDashboard.putNumber("Drive: Left Velocity", this.getLeftVelocity());
     SmartDashboard.putNumber("Drive: Right Position", this.getRightPosition());
     SmartDashboard.putNumber("Drive: Right Velocity", this.getRightVelocity());
-    SmartDashboard.putBoolean("Drive: Transmission", this.isTransmissionStatus());
+    SmartDashboard.putBoolean("Drive: Transmission", !this.isTransmissionStatus());
 
   }
 
@@ -179,6 +181,7 @@ public class Drive implements ISystem {
   @Override
   public void teleopUpdate(LogitechF310 driver, LogitechF310 operator) {
 
+    this.changePeaks(1);
     this.coastMode();
 
     this.setLeftSetPoint(convertStickValue(-driver.getAxis(LogitechAxis.LY)));
